@@ -1,14 +1,14 @@
 import { Check, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import useAgentAccounts from '../../../hooks/useAgentAccounts';
 import { authenticatedFetch } from '../../../utils/api';
+import type { AgentProvider } from '../../settings/types/types';
+import type { AgentContext } from '../../settings/view/tabs/agents-settings/types';
 import ProviderLoginModal from '../../provider-auth/view/ProviderLoginModal';
 import AgentConnectionsStep from './subcomponents/AgentConnectionsStep';
 import GitConfigurationStep from './subcomponents/GitConfigurationStep';
 import OnboardingStepProgress from './subcomponents/OnboardingStepProgress';
-import type { CliProvider, ProviderStatusMap } from './types';
 import {
-  cliProviders,
-  createInitialProviderStatuses,
   gitEmailPattern,
   readErrorMessageFromResponse,
   selectedProject,
@@ -24,59 +24,79 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const [gitEmail, setGitEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [activeLoginProvider, setActiveLoginProvider] = useState<CliProvider | null>(null);
-  const [providerStatuses, setProviderStatuses] = useState<ProviderStatusMap>(createInitialProviderStatuses);
+  const [activeLoginProvider, setActiveLoginProvider] = useState<AgentProvider | null>(null);
 
-  const previousActiveLoginProviderRef = useRef<CliProvider | null | undefined>(undefined);
+  const previousActiveLoginProviderRef = useRef<AgentProvider | null | undefined>(undefined);
 
-  const checkProviderAuthStatus = useCallback(async (provider: CliProvider) => {
-    try {
-      const response = await authenticatedFetch(`/api/cli/${provider}/status`);
-      if (!response.ok) {
-        setProviderStatuses((previous) => ({
-          ...previous,
-          [provider]: {
-            authenticated: false,
-            email: null,
-            loading: false,
-            error: 'Failed to check authentication status',
-          },
-        }));
-        return;
-      }
+  const {
+    claudeAuthStatus,
+    cursorAuthStatus,
+    codexAuthStatus,
+    geminiAuthStatus,
+    claudeInstallStatus,
+    cursorInstallStatus,
+    codexInstallStatus,
+    geminiInstallStatus,
+    claudeApiKeyStatus,
+    cursorApiKeyStatus,
+    codexApiKeyStatus,
+    geminiApiKeyStatus,
+    installClient,
+    uninstallClient,
+    validateApiKey,
+    resetApiKeyValidation,
+    checkAuthStatus,
+    refreshAllStatuses,
+  } = useAgentAccounts();
 
-      const payload = (await response.json()) as {
-        authenticated?: boolean;
-        email?: string | null;
-        error?: string | null;
-      };
-
-      setProviderStatuses((previous) => ({
-        ...previous,
-        [provider]: {
-          authenticated: Boolean(payload.authenticated),
-          email: payload.email ?? null,
-          loading: false,
-          error: payload.error ?? null,
-        },
-      }));
-    } catch (caughtError) {
-      console.error(`Error checking ${provider} auth status:`, caughtError);
-      setProviderStatuses((previous) => ({
-        ...previous,
-        [provider]: {
-          authenticated: false,
-          email: null,
-          loading: false,
-          error: caughtError instanceof Error ? caughtError.message : 'Unknown error',
-        },
-      }));
-    }
-  }, []);
-
-  const refreshAllProviderStatuses = useCallback(async () => {
-    await Promise.all(cliProviders.map((provider) => checkProviderAuthStatus(provider)));
-  }, [checkProviderAuthStatus]);
+  const agentContextById = useMemo<Record<AgentProvider, AgentContext>>(() => ({
+    claude: {
+      authStatus: claudeAuthStatus,
+      installStatus: claudeInstallStatus,
+      apiKeyStatus: claudeApiKeyStatus,
+      onLogin: () => setActiveLoginProvider('claude'),
+      onInstall: () => void installClient('claude'),
+      onUninstall: () => void uninstallClient('claude'),
+      onValidateApiKey: (key: string) => validateApiKey('claude', key),
+      onResetApiKeyValidation: () => resetApiKeyValidation('claude'),
+    },
+    cursor: {
+      authStatus: cursorAuthStatus,
+      installStatus: cursorInstallStatus,
+      apiKeyStatus: cursorApiKeyStatus,
+      onLogin: () => setActiveLoginProvider('cursor'),
+      onInstall: () => void installClient('cursor'),
+      onUninstall: () => void uninstallClient('cursor'),
+      onValidateApiKey: (key: string) => validateApiKey('cursor', key),
+      onResetApiKeyValidation: () => resetApiKeyValidation('cursor'),
+    },
+    codex: {
+      authStatus: codexAuthStatus,
+      installStatus: codexInstallStatus,
+      apiKeyStatus: codexApiKeyStatus,
+      onLogin: () => setActiveLoginProvider('codex'),
+      onInstall: () => void installClient('codex'),
+      onUninstall: () => void uninstallClient('codex'),
+      onValidateApiKey: (key: string) => validateApiKey('codex', key),
+      onResetApiKeyValidation: () => resetApiKeyValidation('codex'),
+    },
+    gemini: {
+      authStatus: geminiAuthStatus,
+      installStatus: geminiInstallStatus,
+      apiKeyStatus: geminiApiKeyStatus,
+      onLogin: () => setActiveLoginProvider('gemini'),
+      onInstall: () => void installClient('gemini'),
+      onUninstall: () => void uninstallClient('gemini'),
+      onValidateApiKey: (key: string) => validateApiKey('gemini', key),
+      onResetApiKeyValidation: () => resetApiKeyValidation('gemini'),
+    },
+  }), [
+    claudeAuthStatus, claudeInstallStatus, claudeApiKeyStatus,
+    cursorAuthStatus, cursorInstallStatus, cursorApiKeyStatus,
+    codexAuthStatus, codexInstallStatus, codexApiKeyStatus,
+    geminiAuthStatus, geminiInstallStatus, geminiApiKeyStatus,
+    installClient, uninstallClient, validateApiKey, resetApiKeyValidation,
+  ]);
 
   const loadGitConfig = useCallback(async () => {
     try {
@@ -99,29 +119,23 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
   useEffect(() => {
     void loadGitConfig();
-    void refreshAllProviderStatuses();
-  }, [loadGitConfig, refreshAllProviderStatuses]);
+  }, [loadGitConfig]);
 
+  // Refresh auth statuses after the login modal is closed.
   useEffect(() => {
     const previousProvider = previousActiveLoginProviderRef.current;
     previousActiveLoginProviderRef.current = activeLoginProvider;
 
-    const isInitialMount = previousProvider === undefined;
-    const didCloseModal = previousProvider !== null && activeLoginProvider === null;
+    const didCloseModal = previousProvider !== null && previousProvider !== undefined && activeLoginProvider === null;
 
-    // Refresh statuses once on mount and again after the login modal is closed.
-    if (isInitialMount || didCloseModal) {
-      void refreshAllProviderStatuses();
+    if (didCloseModal) {
+      void refreshAllStatuses();
     }
-  }, [activeLoginProvider, refreshAllProviderStatuses]);
-
-  const handleProviderLoginOpen = (provider: CliProvider) => {
-    setActiveLoginProvider(provider);
-  };
+  }, [activeLoginProvider, refreshAllStatuses]);
 
   const handleLoginComplete = (exitCode: number) => {
     if (exitCode === 0 && activeLoginProvider) {
-      void checkProviderAuthStatus(activeLoginProvider);
+      void checkAuthStatus(activeLoginProvider);
     }
   };
 
@@ -208,10 +222,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 onGitEmailChange={setGitEmail}
               />
             ) : (
-              <AgentConnectionsStep
-                providerStatuses={providerStatuses}
-                onOpenProviderLogin={handleProviderLoginOpen}
-              />
+              <AgentConnectionsStep agentContextById={agentContextById} />
             )}
 
             {errorMessage && (
