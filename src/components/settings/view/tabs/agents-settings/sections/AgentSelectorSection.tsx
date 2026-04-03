@@ -3,7 +3,7 @@ import SessionProviderLogo from '../../../../../llm-logo-provider/SessionProvide
 import type { AgentProvider } from '../../../../types/types';
 import type { AgentSelectorSectionProps } from '../types';
 
-const AGENT_PROVIDERS: AgentProvider[] = ['claude', 'cursor', 'codex', 'gemini'];
+const AGENT_PROVIDERS: AgentProvider[] = ['claude', 'gemini', 'codex', 'cursor'];
 
 const AGENT_NAMES: Record<AgentProvider, string> = {
   claude: 'Claude',

@@ -1,6 +1,7 @@
 import type {
   AgentCategory,
   AgentProvider,
+  ApiKeyStatus,
   AuthStatus,
   InstallStatus,
   ClaudeMcpFormState,
@@ -22,7 +23,7 @@ export const SETTINGS_MAIN_TABS: SettingsMainTab[] = [
   'notifications',
 ];
 
-export const AGENT_PROVIDERS: AgentProvider[] = ['claude', 'cursor', 'codex'];
+export const AGENT_PROVIDERS: AgentProvider[] = ['claude', 'gemini', 'codex', 'cursor'];
 export const AGENT_CATEGORIES: AgentCategory[] = ['account', 'permissions', 'mcp'];
 
 export const DEFAULT_PROJECT_SORT_ORDER: ProjectSortOrder = 'name';
@@ -97,6 +98,14 @@ export const DEFAULT_CURSOR_PERMISSIONS: CursorPermissionsState = {
   allowedCommands: [],
   disallowedCommands: [],
   skipPermissions: false,
+};
+
+export const DEFAULT_API_KEY_STATUS: ApiKeyStatus = {
+  available: false,
+  source: null,
+  masked: null,
+  validationStatus: 'idle',
+  validationError: null,
 };
 
 export const AUTH_STATUS_ENDPOINTS: Record<AgentProvider, string> = {

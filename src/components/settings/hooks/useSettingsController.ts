@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTheme } from '../../../contexts/ThemeContext';
+import { useWebSocket } from '../../../contexts/WebSocketContext';
 import { authenticatedFetch } from '../../../utils/api';
 import {
   AUTH_STATUS_ENDPOINTS,
+  DEFAULT_API_KEY_STATUS,
   DEFAULT_AUTH_STATUS,
   DEFAULT_CODE_EDITOR_SETTINGS,
   DEFAULT_CURSOR_PERMISSIONS,
@@ -10,6 +12,7 @@ import {
 } from '../constants/constants';
 import type {
   AgentProvider,
+  ApiKeyStatus,
   AuthStatus,
   InstallStatus,
   ClaudeMcpFormState,
@@ -208,6 +211,7 @@ const createDefaultNotificationPreferences = (): NotificationPreferencesState =>
 
 export function useSettingsController({ isOpen, initialTab, projects, onClose }: UseSettingsControllerArgs) {
   const { isDarkMode, toggleDarkMode } = useTheme() as ThemeContextValue;
+  const { latestMessage } = useWebSocket();
   const closeTimerRef = useRef<number | null>(null);
 
   const [activeTab, setActiveTab] = useState<SettingsMainTab>(() => normalizeMainTab(initialTab));
@@ -256,6 +260,11 @@ export function useSettingsController({ isOpen, initialTab, projects, onClose }:
   const [codexInstallStatus, setCodexInstallStatus] = useState<InstallStatus>(DEFAULT_INSTALL_STATUS);
   const [geminiInstallStatus, setGeminiInstallStatus] = useState<InstallStatus>(DEFAULT_INSTALL_STATUS);
 
+  const [claudeApiKeyStatus, setClaudeApiKeyStatus] = useState<ApiKeyStatus>(DEFAULT_API_KEY_STATUS);
+  const [cursorApiKeyStatus, setCursorApiKeyStatus] = useState<ApiKeyStatus>(DEFAULT_API_KEY_STATUS);
+  const [codexApiKeyStatus, setCodexApiKeyStatus] = useState<ApiKeyStatus>(DEFAULT_API_KEY_STATUS);
+  const [geminiApiKeyStatus, setGeminiApiKeyStatus] = useState<ApiKeyStatus>(DEFAULT_API_KEY_STATUS);
+
   const setAuthStatusByProvider = useCallback((provider: AgentProvider, status: AuthStatus) => {
     if (provider === 'claude') {
       setClaudeAuthStatus(status);
@@ -285,6 +294,94 @@ export function useSettingsController({ isOpen, initialTab, projects, onClose }:
     setters[provider](updater);
   }, []);
 
+  const setApiKeyStatusByProvider = useCallback((provider: AgentProvider, updater: (prev: ApiKeyStatus) => ApiKeyStatus) => {
+    const setters: Record<AgentProvider, typeof setClaudeApiKeyStatus> = {
+      claude: setClaudeApiKeyStatus,
+      cursor: setCursorApiKeyStatus,
+      codex: setCodexApiKeyStatus,
+      gemini: setGeminiApiKeyStatus,
+    };
+    setters[provider](updater);
+  }, []);
+
+  const fetchKeyStatus = useCallback(async () => {
+    try {
+      const response = await authenticatedFetch('/api/cli-installer/key-status');
+      if (!response.ok) return;
+
+      const data = await toResponseJson<{ success?: boolean; keys?: Record<string, { available?: boolean; source?: string; masked?: string }> }>(response);
+      if (!data.success || !data.keys) return;
+
+      for (const provider of ['claude', 'gemini', 'codex', 'cursor'] as AgentProvider[]) {
+        const keyInfo = data.keys[provider];
+        if (keyInfo?.available) {
+          setApiKeyStatusByProvider(provider, () => ({
+            available: true,
+            source: 'env',
+            masked: keyInfo.masked || null,
+            validationStatus: 'valid',
+            validationError: null,
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching key status:', error);
+    }
+  }, [setApiKeyStatusByProvider]);
+
+  const validateApiKey = useCallback(async (provider: AgentProvider, apiKey: string) => {
+    setApiKeyStatusByProvider(provider, (prev) => ({
+      ...prev,
+      validationStatus: 'validating',
+      validationError: null,
+    }));
+
+    try {
+      const response = await authenticatedFetch(`/api/cli-installer/${provider}/validate-key`, {
+        method: 'POST',
+        body: JSON.stringify({ apiKey }),
+      });
+
+      const data = await toResponseJson<{ valid?: boolean; error?: string }>(response);
+
+      if (data.valid) {
+        // Persist the validated key as an environment variable so the CLI
+        // can authenticate at runtime once installed.
+        await authenticatedFetch(`/api/cli-installer/${provider}/save-key`, {
+          method: 'POST',
+          body: JSON.stringify({ apiKey }),
+        });
+      }
+
+      setApiKeyStatusByProvider(provider, (prev) => ({
+        ...prev,
+        available: Boolean(data.valid),
+        source: data.valid ? 'input' : prev.source,
+        validationStatus: data.valid ? 'valid' : 'invalid',
+        validationError: data.error || null,
+      }));
+    } catch (error) {
+      setApiKeyStatusByProvider(provider, (prev) => ({
+        ...prev,
+        validationStatus: 'invalid',
+        validationError: getErrorMessage(error),
+      }));
+    }
+  }, [setApiKeyStatusByProvider]);
+
+  const resetApiKeyValidation = useCallback((provider: AgentProvider) => {
+    setApiKeyStatusByProvider(provider, (prev) => {
+      // Don't reset env-var keys — they are always pre-validated
+      if (prev.source === 'env') return prev;
+      return {
+        ...prev,
+        available: false,
+        validationStatus: 'idle',
+        validationError: null,
+      };
+    });
+  }, [setApiKeyStatusByProvider]);
+
   const checkInstallStatus = useCallback(async () => {
     try {
       const response = await authenticatedFetch('/api/cli-installer/status');
@@ -293,7 +390,7 @@ export function useSettingsController({ isOpen, initialTab, projects, onClose }:
       const data = await toResponseJson<{ success?: boolean; clients?: Record<string, { installed?: boolean; version?: string | null }> }>(response);
       if (!data.success || !data.clients) return;
 
-      for (const provider of ['claude', 'cursor', 'codex', 'gemini'] as AgentProvider[]) {
+      for (const provider of ['claude', 'gemini', 'codex', 'cursor'] as AgentProvider[]) {
         const client = data.clients[provider];
         if (client) {
           setInstallStatusByProvider(provider, (prev) => ({
@@ -941,7 +1038,8 @@ export function useSettingsController({ isOpen, initialTab, projects, onClose }:
     void checkAuthStatus('codex');
     void checkAuthStatus('gemini');
     void checkInstallStatus();
-  }, [checkAuthStatus, checkInstallStatus, initialTab, isOpen, loadSettings]);
+    void fetchKeyStatus();
+  }, [checkAuthStatus, checkInstallStatus, fetchKeyStatus, initialTab, isOpen, loadSettings]);
 
   useEffect(() => {
     localStorage.setItem('codeEditorTheme', codeEditorSettings.theme);
@@ -987,6 +1085,21 @@ export function useSettingsController({ isOpen, initialTab, projects, onClose }:
     const timer = window.setTimeout(() => setSaveStatus(null), 2000);
     return () => window.clearTimeout(timer);
   }, [saveStatus]);
+
+  // Append real-time install/uninstall log lines received via WebSocket.
+  useEffect(() => {
+    if (!latestMessage || latestMessage.type !== 'install_log') return;
+    const { provider, line } = latestMessage as { provider?: string; line?: string; type: string };
+    if (!provider || !line) return;
+
+    const validProviders: AgentProvider[] = ['claude', 'gemini', 'codex', 'cursor'];
+    if (!validProviders.includes(provider as AgentProvider)) return;
+
+    setInstallStatusByProvider(provider as AgentProvider, (prev) => ({
+      ...prev,
+      log: [...prev.log, line],
+    }));
+  }, [latestMessage, setInstallStatusByProvider]);
 
   // Reset initial load flag when settings dialog opens
   useEffect(() => {
@@ -1053,8 +1166,14 @@ export function useSettingsController({ isOpen, initialTab, projects, onClose }:
     cursorInstallStatus,
     codexInstallStatus,
     geminiInstallStatus,
+    claudeApiKeyStatus,
+    cursorApiKeyStatus,
+    codexApiKeyStatus,
+    geminiApiKeyStatus,
     installClient,
     uninstallClient,
+    validateApiKey,
+    resetApiKeyValidation,
     geminiPermissionMode,
     setGeminiPermissionMode,
     openLoginForProvider,

@@ -1,17 +1,20 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, Download, LogIn, Trash2 } from 'lucide-react';
+import { Check, ChevronDown, ChevronRight, Download, HardDrive, Key, Loader2, Plug, Trash2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge, Button } from '../../../../../../../shared/view/ui';
 import SessionProviderLogo from '../../../../../../llm-logo-provider/SessionProviderLogo';
-import type { AgentProvider, AuthStatus, InstallStatus } from '../../../../../types/types';
+import type { AgentProvider, ApiKeyStatus, AuthStatus, InstallStatus } from '../../../../../types/types';
 
 type AccountContentProps = {
   agent: AgentProvider;
   authStatus: AuthStatus;
   installStatus: InstallStatus;
+  apiKeyStatus: ApiKeyStatus;
   onLogin: () => void;
   onInstall: () => void;
   onUninstall: () => void;
+  onValidateApiKey: (key: string) => Promise<void>;
+  onResetApiKeyValidation: () => void;
 };
 
 type AgentVisualConfig = {
@@ -60,12 +63,26 @@ const agentConfig: Record<AgentProvider, AgentVisualConfig> = {
   },
 };
 
-export default function AccountContent({ agent, authStatus, installStatus, onLogin, onInstall, onUninstall }: AccountContentProps) {
+export default function AccountContent({ agent, authStatus, installStatus, apiKeyStatus, onLogin, onInstall, onUninstall, onValidateApiKey, onResetApiKeyValidation }: AccountContentProps) {
   const { t } = useTranslation('settings');
   const config = agentConfig[agent];
   const [showLog, setShowLog] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState('');
 
   const isBusy = installStatus.installing || installStatus.uninstalling;
+  const isCursor = agent === 'cursor';
+  const isEnvKey = apiKeyStatus.source === 'env';
+  const isKeyValidated = apiKeyStatus.validationStatus === 'valid';
+  const isValidating = apiKeyStatus.validationStatus === 'validating';
+  const canInstall = isCursor || isKeyValidated;
+
+  const handleApiKeyChange = (value: string) => {
+    setApiKeyInput(value);
+    // Any modification after a previous validation invalidates the result
+    if (apiKeyStatus.validationStatus === 'valid' || apiKeyStatus.validationStatus === 'invalid') {
+      onResetApiKeyValidation();
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -77,12 +94,99 @@ export default function AccountContent({ agent, authStatus, installStatus, onLog
         </div>
       </div>
 
+      {/* API Key section */}
+      <div className={`${config.bgClass} border ${config.borderClass} rounded-lg p-4`}>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <div className={`font-medium ${config.textClass}`}>
+                <Key className="mr-1.5 inline h-4 w-4" />
+                {t('agents.apiKey.title')}
+              </div>
+              <div className={`text-sm ${config.subtextClass}`}>
+                {isEnvKey ? (
+                  t('agents.apiKey.setViaEnv')
+                ) : isKeyValidated ? (
+                  isCursor ? t('agents.apiKey.cursorSaved') : t('agents.apiKey.validated')
+                ) : isCursor ? (
+                  t('agents.apiKey.cursorNote')
+                ) : (
+                  t('agents.apiKey.description', { agent: config.name })
+                )}
+              </div>
+            </div>
+            <div>
+              {isValidating ? (
+                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                  {isCursor ? t('agents.apiKey.saving') : t('agents.apiKey.validating')}
+                </Badge>
+              ) : isKeyValidated ? (
+                <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                  <Check className="mr-1 h-3 w-3" />
+                  {isCursor ? t('agents.apiKey.saved') : t('agents.apiKey.valid')}
+                </Badge>
+              ) : apiKeyStatus.validationStatus === 'invalid' ? (
+                <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                  <X className="mr-1 h-3 w-3" />
+                  {t('agents.apiKey.invalid')}
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">
+                  {t('agents.apiKey.notSet')}
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          {/* Key input — disabled for env vars */}
+          <div className="border-t border-border/50 pt-4">
+            <div className="flex items-center gap-2">
+              <input
+                type="password"
+                value={isEnvKey ? '' : apiKeyInput}
+                onChange={(e) => handleApiKeyChange(e.target.value)}
+                disabled={isEnvKey || isValidating}
+                placeholder={isEnvKey && apiKeyStatus.masked ? apiKeyStatus.masked : t('agents.apiKey.placeholder', { agent: config.name })}
+                className="h-9 flex-1 rounded-md border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <Button
+                onClick={() => void onValidateApiKey(apiKeyInput.trim())}
+                disabled={isEnvKey || isValidating || !apiKeyInput.trim()}
+                className={`${config.buttonClass} text-white`}
+                size="sm"
+              >
+                {isValidating ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Check className="mr-2 h-4 w-4" />
+                )}
+                {isCursor ? t('agents.apiKey.saveButton') : t('agents.apiKey.validateButton')}
+              </Button>
+            </div>
+            {isEnvKey && (
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                {t('agents.apiKey.envLabel')}
+              </p>
+            )}
+            {apiKeyStatus.validationError && (
+              <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">
+                {apiKeyStatus.validationError}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Installation status section */}
       <div className={`${config.bgClass} border ${config.borderClass} rounded-lg p-4`}>
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="flex-1">
               <div className={`font-medium ${config.textClass}`}>
+                <HardDrive className="mr-1.5 inline h-4 w-4" />
                 {t('agents.installStatus')}
               </div>
               <div className={`text-sm ${config.subtextClass}`}>
@@ -125,58 +229,74 @@ export default function AccountContent({ agent, authStatus, installStatus, onLog
           {/* Install/Uninstall actions */}
           {!installStatus.loading && (
             <div className="border-t border-border/50 pt-4">
-              <div className="flex items-center gap-2">
-                {!installStatus.installed && (
-                  <Button
-                    onClick={onInstall}
-                    disabled={isBusy}
-                    className={`${config.buttonClass} text-white`}
-                    size="sm"
-                  >
-                    <Download className="mr-2 h-4 w-4" />
-                    {t('agents.install.installButton')}
-                  </Button>
-                )}
-                {installStatus.installed && (
-                  <>
-                    <Button
-                      onClick={onInstall}
-                      disabled={isBusy}
-                      className={`${config.buttonClass} text-white`}
-                      size="sm"
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      {t('agents.install.reinstallButton')}
-                    </Button>
-                    <Button
-                      onClick={onUninstall}
-                      disabled={isBusy}
-                      variant="outline"
-                      size="sm"
-                      className="text-red-600 hover:text-red-700 dark:text-red-400"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      {t('agents.install.uninstallButton')}
-                    </Button>
-                  </>
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex items-center gap-2">
+                  {!installStatus.installed && (
+                    <div className="group relative">
+                      <Button
+                        onClick={onInstall}
+                        disabled={isBusy || !canInstall}
+                        className={`${config.buttonClass} text-white`}
+                        size="sm"
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        {t('agents.install.installButton')}
+                      </Button>
+                      {!canInstall && !isBusy && (
+                        <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-popover px-2 py-1 text-xs text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100">
+                          {t('agents.apiKey.validateFirst')}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {installStatus.installed && (
+                    <>
+                      <Button
+                        onClick={onInstall}
+                        disabled={isBusy}
+                        className={`${config.buttonClass} text-white`}
+                        size="sm"
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        {t('agents.install.reinstallButton')}
+                      </Button>
+                      <Button
+                        onClick={onUninstall}
+                        disabled={isBusy}
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 hover:text-red-700 dark:text-red-400"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        {t('agents.install.uninstallButton')}
+                      </Button>
+                    </>
+                  )}
+                </div>
+                {!canInstall && !installStatus.installed && !isBusy && (
+                  <p className="text-xs text-muted-foreground">
+                    {t('agents.apiKey.validateFirst')}
+                  </p>
                 )}
               </div>
             </div>
           )}
 
-          {/* Install log (collapsible) */}
-          {installStatus.log.length > 0 && (
+          {/* Install log — auto-expanded while busy, collapsible otherwise */}
+          {(isBusy || installStatus.log.length > 0) && (
             <div className="border-t border-border/50 pt-3">
               <button
                 onClick={() => setShowLog(!showLog)}
                 className={`flex items-center gap-1 text-xs font-medium ${config.subtextClass} hover:underline`}
               >
-                {showLog ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-                {showLog ? t('agents.install.hideLog') : t('agents.install.showLog')}
+                {(showLog || isBusy) ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                {(showLog || isBusy) ? t('agents.install.hideLog') : t('agents.install.showLog')}
               </button>
-              {showLog && (
+              {(showLog || isBusy) && (
                 <pre className="mt-2 max-h-40 overflow-auto rounded bg-black/10 p-2 text-xs text-foreground dark:bg-white/5">
-                  {installStatus.log.join('\n')}
+                  {installStatus.log.length > 0
+                    ? installStatus.log.join('\n')
+                    : (installStatus.installing ? t('agents.install.waitingForLog') : t('agents.install.uninstallWaitingForLog'))}
                 </pre>
               )}
             </div>
@@ -200,6 +320,7 @@ export default function AccountContent({ agent, authStatus, installStatus, onLog
             <div className="flex items-center gap-3">
               <div className="flex-1">
                 <div className={`font-medium ${config.textClass}`}>
+                  <Plug className="mr-1.5 inline h-4 w-4" />
                   {t('agents.connectionStatus')}
                 </div>
                 <div className={`text-sm ${config.subtextClass}`}>
@@ -224,37 +345,12 @@ export default function AccountContent({ agent, authStatus, installStatus, onLog
                     {t('agents.authStatus.connected')}
                   </Badge>
                 ) : (
-                  <Badge variant="secondary" className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">
+                  <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
                     {t('agents.authStatus.disconnected')}
                   </Badge>
                 )}
               </div>
             </div>
-
-            {authStatus.method !== 'api_key' && (
-              <div className="border-t border-border/50 pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className={`font-medium ${config.textClass}`}>
-                      {authStatus.authenticated ? t('agents.login.reAuthenticate') : t('agents.login.title')}
-                    </div>
-                    <div className={`text-sm ${config.subtextClass}`}>
-                      {authStatus.authenticated
-                        ? t('agents.login.reAuthDescription')
-                        : t('agents.login.description', { agent: config.name })}
-                    </div>
-                  </div>
-                  <Button
-                    onClick={onLogin}
-                    className={`${config.buttonClass} text-white`}
-                    size="sm"
-                  >
-                    <LogIn className="mr-2 h-4 w-4" />
-                    {authStatus.authenticated ? t('agents.login.reLoginButton') : t('agents.login.button')}
-                  </Button>
-                </div>
-              </div>
-            )}
 
             {authStatus.error && (
               <div className="border-t border-border/50 pt-4">

@@ -61,6 +61,34 @@ const CLIENT_REGISTRY = {
   },
 };
 
+// Map provider id → environment variable name for API key and validation config.
+const KEY_CONFIG = {
+  claude: {
+    envVar: 'ANTHROPIC_API_KEY',
+    validateUrl: 'https://api.anthropic.com/v1/models',
+    buildHeaders: (key) => ({ 'x-api-key': key, 'anthropic-version': '2023-06-01' }),
+    buildParams: null,
+  },
+  gemini: {
+    envVar: 'GEMINI_API_KEY',
+    validateUrl: 'https://generativelanguage.googleapis.com/v1beta/models',
+    buildHeaders: null,
+    buildParams: (key) => `key=${encodeURIComponent(key)}`,
+  },
+  codex: {
+    envVar: 'OPENAI_API_KEY',
+    validateUrl: 'https://api.openai.com/v1/models',
+    buildHeaders: (key) => ({ Authorization: `Bearer ${key}` }),
+    buildParams: null,
+  },
+  cursor: {
+    envVar: 'CURSOR_API_KEY',
+    validateUrl: null, // Cursor has no REST validation endpoint
+    buildHeaders: null,
+    buildParams: null,
+  },
+};
+
 const VALID_PROVIDERS = Object.keys(CLIENT_REGISTRY);
 
 // ---------------------------------------------------------------------------
@@ -155,11 +183,153 @@ router.get('/:provider/status', async (req, res) => {
   }
 });
 
+/** Mask an API key for safe display: show last 4 chars */
+function maskKey(key) {
+  if (!key || key.length < 5) return '••••••••';
+  return '••••••••' + key.slice(-4);
+}
+
+// ---------------------------------------------------------------------------
+// Routes — key status & validation
+// ---------------------------------------------------------------------------
+
+/**
+ * GET /key-status
+ * Returns per-provider API key availability (env var detection).
+ */
+router.get('/key-status', (_req, res) => {
+  try {
+    const result = {};
+    for (const [provider, cfg] of Object.entries(KEY_CONFIG)) {
+      const envValue = process.env[cfg.envVar]?.trim() || '';
+      result[provider] = {
+        available: Boolean(envValue),
+        source: envValue ? 'env' : null,
+        masked: envValue ? maskKey(envValue) : null,
+        envVar: cfg.envVar,
+      };
+    }
+    res.json({ success: true, keys: result });
+  } catch (error) {
+    console.error('Error checking key status:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * POST /:provider/validate-key
+ * Validates an API key against the provider's API.
+ * Body: { apiKey: string }
+ * Returns: { valid: boolean, error?: string }
+ *
+ * For Cursor: always returns valid (no REST validation endpoint).
+ */
+router.post('/:provider/validate-key', async (req, res) => {
+  const { provider } = req.params;
+  if (!VALID_PROVIDERS.includes(provider)) {
+    return res.status(400).json({ valid: false, error: `Unknown provider: ${provider}` });
+  }
+
+  const { apiKey } = req.body || {};
+  const cfg = KEY_CONFIG[provider];
+
+  if (!cfg) {
+    return res.json({ valid: false, error: 'No key configuration for this provider' });
+  }
+
+  // Cursor has no REST validation endpoint — accept unconditionally.
+  if (!cfg.validateUrl) {
+    return res.json({ valid: true, error: null });
+  }
+
+  if (!apiKey || !apiKey.trim()) {
+    return res.json({ valid: false, error: 'API key is required' });
+  }
+
+  const trimmedKey = apiKey.trim();
+  let url = cfg.validateUrl;
+  if (cfg.buildParams) {
+    url += '?' + cfg.buildParams(trimmedKey);
+  }
+
+  try {
+    const headers = cfg.buildHeaders ? cfg.buildHeaders(trimmedKey) : {};
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10_000);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers,
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (response.ok) {
+      return res.json({ valid: true, error: null });
+    }
+
+    return res.json({
+      valid: false,
+      error: `Key rejected by provider (HTTP ${response.status})`,
+    });
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      return res.json({ valid: false, error: 'Network error — could not reach provider API' });
+    }
+    return res.json({ valid: false, error: `Network error — ${error.message}` });
+  }
+});
+
+/**
+ * POST /:provider/save-key
+ * Persists a validated API key as a process-level environment variable so that
+ * child processes (install scripts, CLI tools) can read it at runtime.
+ * Body: { apiKey: string }
+ */
+router.post('/:provider/save-key', (req, res) => {
+  const { provider } = req.params;
+  if (!VALID_PROVIDERS.includes(provider)) {
+    return res.status(400).json({ success: false, error: `Unknown provider: ${provider}` });
+  }
+
+  const { apiKey } = req.body || {};
+  const cfg = KEY_CONFIG[provider];
+
+  if (!cfg) {
+    return res.json({ success: false, error: 'No key configuration for this provider' });
+  }
+
+  if (!apiKey || !apiKey.trim()) {
+    return res.json({ success: false, error: 'API key is required' });
+  }
+
+  process.env[cfg.envVar] = apiKey.trim();
+  res.json({ success: true });
+});
+
+// ---------------------------------------------------------------------------
+// Routes — install / uninstall
+// ---------------------------------------------------------------------------
+
+/** Broadcast a message to all connected WebSocket clients. */
+function broadcast(wss, message) {
+  if (!wss) return;
+  const payload = JSON.stringify(message);
+  wss.clients.forEach((client) => {
+    if (client.readyState === 1 /* WebSocket.OPEN */) {
+      try { client.send(payload); } catch { /* ignore */ }
+    }
+  });
+}
+
 /**
  * Run an installer/uninstaller script and collect output.
- * Returns a promise that resolves with { success, message, log, ...status }.
+ * Each stdout/stderr line is also broadcast via WebSocket as an `install_log`
+ * event so the frontend can display progress in real time.
+ *
+ * Returns a promise that resolves with { success, message, log }.
  */
-function runScript(scriptPath, client, timeout) {
+function runScript(scriptPath, client, timeout, { wss, provider, action } = {}) {
   return new Promise((resolve) => {
     const log = [];
 
@@ -173,15 +343,20 @@ function runScript(scriptPath, client, timeout) {
       resolve({ success: false, message: `Timed out after ${timeout / 1000}s`, log });
     }, timeout);
 
+    const pushLine = (line) => {
+      log.push(line);
+      broadcast(wss, { type: 'install_log', provider, action, line });
+    };
+
     proc.stdout.on('data', (data) => {
       for (const line of data.toString().split('\n').filter(Boolean)) {
-        log.push(line);
+        pushLine(line);
       }
     });
 
     proc.stderr.on('data', (data) => {
       for (const line of data.toString().split('\n').filter(Boolean)) {
-        log.push(line);
+        pushLine(line);
       }
     });
 
@@ -202,6 +377,110 @@ function runScript(scriptPath, client, timeout) {
 }
 
 /**
+ * Run provider-specific post-install authentication.
+ * Some CLIs (e.g. Codex) require an explicit login step to register the API
+ * key, unlike Claude/Gemini which read the key directly from the environment.
+ */
+/** Resolve the first executable binary path for a provider. */
+async function resolveBin(provider, fallback) {
+  const paths = CLIENT_REGISTRY[provider]?.detectPaths() || [];
+  for (const p of paths) {
+    if (await fileIsExecutable(p)) return p;
+  }
+  return fallback;
+}
+
+/** Spawn a CLI command, stream output via WebSocket, and optionally pipe stdin. */
+function runCliCommand(bin, args, { wss, provider, stdin, timeout = 30_000 } = {}) {
+  return new Promise((resolve) => {
+    const proc = spawn(bin, args, {
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: { ...process.env, PATH: `${os.homedir()}/.local/bin:/usr/local/bin:${process.env.PATH}` },
+    });
+
+    let output = '';
+    const pushLine = (line) => {
+      output += line + '\n';
+      broadcast(wss, { type: 'install_log', provider, action: 'install', line });
+    };
+
+    proc.stdout.on('data', (d) => {
+      for (const line of d.toString().split('\n').filter(Boolean)) pushLine(line);
+    });
+    proc.stderr.on('data', (d) => {
+      for (const line of d.toString().split('\n').filter(Boolean)) pushLine(line);
+    });
+
+    if (stdin != null) {
+      proc.stdin.write(stdin + '\n');
+      proc.stdin.end();
+    }
+
+    const timer = setTimeout(() => { proc.kill('SIGTERM'); resolve({ code: null, output }); }, timeout);
+    proc.on('close', (code) => { clearTimeout(timer); resolve({ code, output }); });
+    proc.on('error', () => { clearTimeout(timer); resolve({ code: null, output }); });
+  });
+}
+
+/**
+ * Run provider-specific post-install authentication.
+ * Some CLIs (e.g. Codex, Cursor) require an explicit login step to register
+ * the API key, unlike Claude/Gemini which read the key directly from env.
+ */
+async function postInstallAuth(provider, wss) {
+  const cfg = KEY_CONFIG[provider];
+  if (!cfg) return;
+
+  const apiKey = process.env[cfg.envVar]?.trim();
+  if (!apiKey) return;
+
+  const pushLine = (line) => {
+    broadcast(wss, { type: 'install_log', provider, action: 'install', line });
+  };
+
+  // Codex: pipe the API key to `codex login --with-api-key`
+  if (provider === 'codex') {
+    const bin = await resolveBin('codex', 'codex');
+    pushLine('Authenticating Codex CLI with API key...');
+    await runCliCommand(bin, ['login', '--with-api-key'], { wss, provider, stdin: apiKey, timeout: 15_000 });
+    pushLine('Codex CLI authenticated.');
+  }
+
+  // Cursor: run `agent` with the key to register, then verify via `agent status`.
+  // Follows the approach in magneto/apps/ai-studio/image/installer/cli/cursor/install.sh
+  if (provider === 'cursor') {
+    const bin = await resolveBin('cursor', 'agent');
+    pushLine('Authenticating Cursor CLI with API key...');
+
+    // Initial invocation registers the key with the agent runtime.
+    const authEnv = { ...process.env, CURSOR_API_KEY: apiKey, PATH: `${os.homedir()}/.local/bin:/usr/local/bin:${process.env.PATH}` };
+    await new Promise((resolve) => {
+      const proc = spawn(bin, ['-p', '-f', '--trust', 'implement user authentication'], {
+        stdio: ['ignore', 'pipe', 'pipe'],
+        env: authEnv,
+      });
+      proc.stdout.on('data', (d) => {
+        for (const line of d.toString().split('\n').filter(Boolean)) pushLine(line);
+      });
+      proc.stderr.on('data', (d) => {
+        for (const line of d.toString().split('\n').filter(Boolean)) pushLine(line);
+      });
+      const timer = setTimeout(() => { proc.kill('SIGTERM'); resolve(); }, 30_000);
+      proc.on('close', () => { clearTimeout(timer); resolve(); });
+      proc.on('error', () => { clearTimeout(timer); resolve(); });
+    });
+
+    // Verify authentication via `agent status`.
+    const statusResult = await runCliCommand(bin, ['status'], { wss, provider, timeout: 15_000 });
+    if (/not authenticated|invalid|error/i.test(statusResult.output)) {
+      pushLine('WARNING: Cursor API key verification failed — agent may not be authenticated.');
+    } else {
+      pushLine('Cursor API key verified.');
+    }
+  }
+}
+
+/**
  * POST /:provider/install
  * Installs a provider CLI. Returns JSON when the install finishes.
  */
@@ -213,9 +492,16 @@ router.post('/:provider/install', async (req, res) => {
 
   const client = CLIENT_REGISTRY[provider];
   const scriptPath = path.join(INSTALLERS_DIR, client.installScript);
+  const wss = req.app.locals.wss;
 
   try {
-    const result = await runScript(scriptPath, client, client.timeout);
+    const result = await runScript(scriptPath, client, client.timeout, { wss, provider, action: 'install' });
+
+    // Run provider-specific post-install auth (e.g. codex login --with-api-key)
+    if (result.success) {
+      await postInstallAuth(provider, wss);
+    }
+
     const status = await detectClient(provider);
     res.json({ ...result, ...status });
   } catch (error) {
@@ -236,9 +522,10 @@ router.post('/:provider/uninstall', async (req, res) => {
 
   const client = CLIENT_REGISTRY[provider];
   const scriptPath = path.join(INSTALLERS_DIR, client.uninstallScript);
+  const wss = req.app.locals.wss;
 
   try {
-    const result = await runScript(scriptPath, client, 60_000);
+    const result = await runScript(scriptPath, client, 60_000, { wss, provider, action: 'uninstall' });
     const status = await detectClient(provider);
     res.json({ ...result, ...status });
   } catch (error) {

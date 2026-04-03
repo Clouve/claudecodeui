@@ -349,7 +349,9 @@
       "installDescription": "Install {{agent}} to use it as an AI coding assistant",
       "installedDescription": "{{agent}} is ready to use",
       "showLog": "Show log",
-      "hideLog": "Hide log"
+      "hideLog": "Hide log",
+      "waitingForLog": "Installing — waiting for output…",
+      "uninstallWaitingForLog": "Uninstalling — waiting for output…"
     },
     "login": {
       "title": "Login",
@@ -359,7 +361,26 @@
       "button": "Login",
       "reLoginButton": "Re-login"
     },
-    "error": "Error: {{error}}"
+    "error": "Error: {{error}}",
+    "apiKey": {
+      "title": "API Key",
+      "description": "Enter your API key for {{agent}} to enable installation",
+      "setViaEnv": "API key provided via environment variable",
+      "validated": "API key validated successfully",
+      "cursorNote": "Enter your Cursor API key — authentication is verified after installation",
+      "cursorSaved": "API key saved — will be verified after installation",
+      "validating": "Validating...",
+      "saving": "Saving...",
+      "valid": "Valid",
+      "saved": "Saved",
+      "saveButton": "Save",
+      "invalid": "Invalid",
+      "notSet": "Not set",
+      "placeholder": "Enter {{agent}} API key...",
+      "validateButton": "Validate",
+      "validateFirst": "A valid API key is required before installation",
+      "envLabel": "Set via environment variable — cannot be edited here"
+    }
   },
   "permissions": {
     "title": "Permission Settings",

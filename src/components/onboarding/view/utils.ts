@@ -1,7 +1,7 @@
 import { IS_PLATFORM } from '../../../constants/config';
 import type { CliProvider, ProviderStatusMap } from './types';
 
-export const cliProviders: CliProvider[] = ['claude', 'cursor', 'codex', 'gemini'];
+export const cliProviders: CliProvider[] = ['claude', 'gemini', 'codex', 'cursor'];
 
 export const gitEmailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

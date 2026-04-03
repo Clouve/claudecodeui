@@ -63,8 +63,14 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }: Set
     cursorInstallStatus,
     codexInstallStatus,
     geminiInstallStatus,
+    claudeApiKeyStatus,
+    cursorApiKeyStatus,
+    codexApiKeyStatus,
+    geminiApiKeyStatus,
     installClient,
     uninstallClient,
+    validateApiKey,
+    resetApiKeyValidation,
     geminiPermissionMode,
     setGeminiPermissionMode,
     openLoginForProvider,
@@ -126,7 +132,7 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }: Set
           <h2 className="text-base font-semibold text-foreground">{t('title')}</h2>
           <div className="flex items-center gap-2">
             {saveStatus === 'success' && (
-              <span className="text-xs text-muted-foreground animate-in fade-in">{t('saveStatus.success')}</span>
+              <span className="animate-in fade-in text-xs text-muted-foreground">{t('saveStatus.success')}</span>
             )}
             <Button
               variant="ghost"
@@ -177,6 +183,12 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }: Set
                   onGeminiLogin={() => openLoginForProvider('gemini')}
                   onInstallClient={installClient}
                   onUninstallClient={uninstallClient}
+                  onValidateApiKey={validateApiKey}
+                  onResetApiKeyValidation={resetApiKeyValidation}
+                  claudeApiKeyStatus={claudeApiKeyStatus}
+                  cursorApiKeyStatus={cursorApiKeyStatus}
+                  codexApiKeyStatus={codexApiKeyStatus}
+                  geminiApiKeyStatus={geminiApiKeyStatus}
                   claudePermissions={claudePermissions}
                   onClaudePermissionsChange={setClaudePermissions}
                   cursorPermissions={cursorPermissions}

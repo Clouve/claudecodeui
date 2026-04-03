@@ -295,6 +295,15 @@ function checkCursorStatus() {
 }
 
 async function checkCodexCredentials() {
+  // Priority 1: Check for OPENAI_API_KEY environment variable
+  if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim()) {
+    return {
+      authenticated: true,
+      email: 'API Key Auth',
+      method: 'api_key'
+    };
+  }
+
   try {
     const authPath = path.join(os.homedir(), '.codex', 'auth.json');
     const content = await fs.readFile(authPath, 'utf8');
