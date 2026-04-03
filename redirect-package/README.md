@@ -6,7 +6,7 @@
 > npm install -g @cloudcli-ai/cloudcli
 > ```
 >
-> This package (`@siteboon/claude-code-ui`) is now a thin wrapper that installs the new package automatically.
+> This package (`@clouve/ai-workspace`) is now a thin wrapper that installs the new package automatically.
 > For new installations, use `@cloudcli-ai/cloudcli` directly.
 
 </div>
@@ -14,20 +14,20 @@
 ---
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/siteboon/claudecodeui/main/public/logo.svg" alt="CloudCLI UI" width="64" height="64">
-  <h1>Cloud CLI (aka Claude Code UI)</h1>
+  <img src="https://raw.githubusercontent.com/Clouve/ai-workspace/main/public/logo.svg" alt="CloudCLI UI" width="64" height="64">
+  <h1>Cloud CLI (aka AI Workspace)</h1>
   <p>A desktop and mobile UI for <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a>, <a href="https://docs.cursor.com/en/cli/overview">Cursor CLI</a>, <a href="https://developers.openai.com/codex">Codex</a>, and <a href="https://geminicli.com/">Gemini-CLI</a>.<br>Use it locally or remotely to view your active projects and sessions from everywhere.</p>
 </div>
 
 <p align="center">
-  <a href="https://cloudcli.ai">CloudCLI Cloud</a> · <a href="https://cloudcli.ai/docs">Documentation</a> · <a href="https://discord.gg/buxwujPNRE">Discord</a> · <a href="https://github.com/siteboon/claudecodeui/issues">Bug Reports</a> · <a href="https://github.com/siteboon/claudecodeui/blob/main/CONTRIBUTING.md">Contributing</a>
+  <a href="https://cloudcli.ai">CloudCLI Cloud</a> · <a href="https://cloudcli.ai/docs">Documentation</a> · <a href="https://discord.gg/buxwujPNRE">Discord</a> · <a href="https://github.com/Clouve/ai-workspace/issues">Bug Reports</a> · <a href="https://github.com/Clouve/ai-workspace/blob/main/CONTRIBUTING.md">Contributing</a>
 </p>
 
 <p align="center">
   <a href="https://cloudcli.ai"><img src="https://img.shields.io/badge/☁️_CloudCLI_Cloud-Try_Now-0066FF?style=for-the-badge" alt="CloudCLI Cloud"></a>
   <a href="https://discord.gg/buxwujPNRE"><img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join our Discord"></a>
   <br><br>
-  <a href="https://trendshift.io/repositories/15586" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15586" alt="siteboon%2Fclaudecodeui | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+  <a href="https://trendshift.io/repositories/15586" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15586" alt="Clouve%2Fai-workspace | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 </p>
 
 ---
@@ -40,13 +40,13 @@
 <tr>
 <td align="center">
 <h3>Desktop View</h3>
-<img src="https://raw.githubusercontent.com/siteboon/claudecodeui/main/public/screenshots/desktop-main.png" alt="Desktop Interface" width="400">
+<img src="https://raw.githubusercontent.com/Clouve/ai-workspace/main/public/screenshots/desktop-main.png" alt="Desktop Interface" width="400">
 <br>
 <em>Main interface showing project overview and chat</em>
 </td>
 <td align="center">
 <h3>Mobile Experience</h3>
-<img src="https://raw.githubusercontent.com/siteboon/claudecodeui/main/public/screenshots/mobile-chat.png" alt="Mobile Interface" width="250">
+<img src="https://raw.githubusercontent.com/Clouve/ai-workspace/main/public/screenshots/mobile-chat.png" alt="Mobile Interface" width="250">
 <br>
 <em>Responsive mobile design with touch navigation</em>
 </td>
@@ -54,7 +54,7 @@
 <tr>
 <td align="center" colspan="2">
 <h3>CLI Selection</h3>
-<img src="https://raw.githubusercontent.com/siteboon/claudecodeui/main/public/screenshots/cli-selection.png" alt="CLI Selection" width="400">
+<img src="https://raw.githubusercontent.com/Clouve/ai-workspace/main/public/screenshots/cli-selection.png" alt="CLI Selection" width="400">
 <br>
 <em>Select between Claude Code, Gemini, Cursor CLI and Codex</em>
 </td>
@@ -75,7 +75,7 @@
 - **Session Management** - Resume conversations, manage multiple sessions, and track history
 - **Plugin System** - Extend CloudCLI with custom plugins — add new tabs, backend services, and integrations. [Build your own →](https://github.com/cloudcli-ai/cloudcli-plugin-starter)
 - **TaskMaster AI Integration** *(Optional)* - Advanced project management with AI-powered task planning, PRD parsing, and workflow automation
-- **Model Compatibility** - Works with Claude, GPT, and Gemini model families (see [`shared/modelConstants.js`](https://github.com/siteboon/claudecodeui/blob/main/shared/modelConstants.js) for the full list of supported models)
+- **Model Compatibility** - Works with Claude, GPT, and Gemini model families (see [`shared/modelConstants.js`](https://github.com/Clouve/ai-workspace/blob/main/shared/modelConstants.js) for the full list of supported models)
 
 
 ## Quick Start
@@ -214,16 +214,16 @@ Yes, for self-hosted. CloudCLI UI reads from and writes to the same `~/.claude` 
 
 - **[Documentation](https://cloudcli.ai/docs)** — installation, configuration, features, and troubleshooting
 - **[Discord](https://discord.gg/buxwujPNRE)** — get help and connect with other users
-- **[GitHub Issues](https://github.com/siteboon/claudecodeui/issues)** — bug reports and feature requests
-- **[Contributing Guide](https://github.com/siteboon/claudecodeui/blob/main/CONTRIBUTING.md)** — how to contribute to the project
+- **[GitHub Issues](https://github.com/Clouve/ai-workspace/issues)** — bug reports and feature requests
+- **[Contributing Guide](https://github.com/Clouve/ai-workspace/blob/main/CONTRIBUTING.md)** — how to contribute to the project
 
 ## License
 
-GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later) — see [LICENSE](https://github.com/siteboon/claudecodeui/blob/main/LICENSE) for the full text, including additional terms under Section 7.
+GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later) — see [LICENSE](https://github.com/Clouve/ai-workspace/blob/main/LICENSE) for the full text, including additional terms under Section 7.
 
 This project is open source and free to use, modify, and distribute under the AGPL-3.0-or-later license. If you modify this software and run it as a network service, you must make your modified source code available to users of that service.
 
-CloudCLI UI  - (https://cloudcli.ai).
+CloudCLI UI (https://github.com/Clouve/ai-workspace)
 
 ## Acknowledgments
 
@@ -240,7 +240,7 @@ CloudCLI UI  - (https://cloudcli.ai).
 
 
 ### Sponsors
-- [Siteboon - AI powered website builder](https://siteboon.ai)
+- [Clouve - AI powered website builder](https://Clouve.ai)
 ---
 
 <div align="center">

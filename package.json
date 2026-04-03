@@ -17,10 +17,10 @@
   "homepage": "https://cloudcli.ai",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/siteboon/claudecodeui.git"
+    "url": "git+https://github.com/Clouve/ai-workspace.git"
   },
   "bugs": {
-    "url": "https://github.com/siteboon/claudecodeui/issues"
+    "url": "https://github.com/Clouve/ai-workspace/issues"
   },
   "scripts": {
     "dev": "concurrently --kill-others \"npm run server\" \"npm run client\"",
@@ -40,7 +40,7 @@
   "keywords": [
     "claude code",
     "claude-code",
-    "claude-code-ui",
+    "ai-workspace",
     "cloudcli",
     "codex",
     "gemini",
