@@ -61,7 +61,7 @@ server/installers/{claude,gemini,codex,cursor}/{install,uninstall}.sh
 
 | File | Purpose |
 |------|---------|
-| `dev/Dockerfile` | No longer runs `install-clients.sh`; installer scripts ship with the app via `server/installers/` |
+| `dev/Dockerfile` | Installer scripts ship with the app via `server/installers/` |
 | `dev/entrypoint.sh` | Gracefully handles missing clients |
 
 ## Detection Strategy

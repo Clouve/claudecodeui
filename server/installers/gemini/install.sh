@@ -20,6 +20,13 @@ for bin in /usr/local/bin/gemini /usr/bin/gemini; do
     fi
 done
 
+# Ensure python3 is available (required by node-gyp for native modules).
+if ! command -v python3 &>/dev/null; then
+    echo "Installing prerequisite: python3..."
+    sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends python3 \
+        && sudo rm -rf /var/lib/apt/lists/*
+fi
+
 echo "Installing Gemini CLI..."
 if [ -w "$(npm root -g)" ] 2>/dev/null; then
     npm install -g @google/gemini-cli

@@ -42,7 +42,11 @@ COPY . .
 RUN printf 'SERVER_PORT=8080\nHOST=0.0.0.0\n' > .env \
     && npm run build \
     && npm prune --production \
-    && rm -rf .git .husky .github dev
+    && npm cache clean --force \
+    && rm -rf .git .husky .github dev src docs scripts \
+              index.html release.sh \
+              eslint.config.js commitlint.config.js \
+              postcss.config.js tailwind.config.js tsconfig.json
 
 # ── Stage 2: Runtime (AI clients installed on-demand via Settings UI) ───────
 FROM ubuntu:24.04
@@ -52,21 +56,18 @@ LABEL description="CloudCLI UI — AI clients installed on-demand from Settings"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Prevent apt from trying to start services (no systemd in containers).
+# Prevent apt from trying to start services (no systemd in containers),
+# install core workspace packages + Node.js 22 (required by the app).
+# AI-client-specific deps (jq, python3, bubblewrap) are installed on-demand
+# by each client's installer script — not baked into the base image.
+# bash is already included in ubuntu:24.04.
 RUN printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d \
-    && chmod +x /usr/sbin/policy-rc.d
-
-# System packages + Node.js 22 (required by the app, Gemini CLI, and Codex).
-# bubblewrap is the sandbox dependency for Codex.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        curl \
-        sudo \
-        bash \
+    && chmod +x /usr/sbin/policy-rc.d \
+    && apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates \
-        jq \
+        curl \
         git \
-        python3 \
-        bubblewrap \
+        sudo \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
@@ -76,19 +77,15 @@ ARG USERNAME=dev
 RUN useradd -m -s /bin/bash ${USERNAME} \
     && echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# Copy built app from Stage 1.
+# Copy built app from Stage 1 and runtime entrypoint (kept outside /opt/cloudcli
+# so a dev-mode volume mount over the app directory does not mask it).
 COPY --from=builder /app /opt/cloudcli
-
-# Ensure on-demand installer scripts are executable.
-RUN chmod +x /opt/cloudcli/server/installers/*/*.sh 2>/dev/null || true
-
-# Copy runtime entrypoint outside /opt/cloudcli so a dev-mode volume mount
-# over the app directory does not mask it.
 COPY dev/entrypoint.sh /usr/local/bin/cloudcli-entrypoint.sh
-RUN chmod +x /usr/local/bin/cloudcli-entrypoint.sh
 
-# Hand ownership to the app user.
-RUN chown -R ${USERNAME}:${USERNAME} /opt/cloudcli
+# Make scripts executable and hand ownership to the app user.
+RUN chmod +x /opt/cloudcli/server/installers/*/*.sh 2>/dev/null || true \
+    && chmod +x /usr/local/bin/cloudcli-entrypoint.sh \
+    && chown -R ${USERNAME}:${USERNAME} /opt/cloudcli
 
 USER ${USERNAME}
 WORKDIR /opt/cloudcli

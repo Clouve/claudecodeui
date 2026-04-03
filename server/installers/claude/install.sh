@@ -17,6 +17,13 @@ if [ -x "$USER_HOME/.local/bin/claude" ]; then
     exit 0
 fi
 
+# Ensure jq is available (used below to skip onboarding wizard).
+if ! command -v jq &>/dev/null; then
+    echo "Installing prerequisite: jq..."
+    sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends jq \
+        && sudo rm -rf /var/lib/apt/lists/*
+fi
+
 echo "Installing Claude Code..."
 export PATH="$HOME/.local/bin:$PATH"
 curl -fsSL https://claude.ai/install.sh | bash

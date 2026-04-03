@@ -18,6 +18,18 @@ for bin in /usr/local/bin/codex /usr/bin/codex; do
     fi
 done
 
+# Ensure prerequisites are available:
+#   python3    — required by node-gyp for native modules
+#   bubblewrap — sandbox dependency for Codex CLI
+MISSING_PKGS=""
+command -v python3 &>/dev/null || MISSING_PKGS="python3"
+command -v bwrap &>/dev/null   || MISSING_PKGS="$MISSING_PKGS bubblewrap"
+if [ -n "$MISSING_PKGS" ]; then
+    echo "Installing prerequisites:$MISSING_PKGS..."
+    sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends $MISSING_PKGS \
+        && sudo rm -rf /var/lib/apt/lists/*
+fi
+
 echo "Installing OpenAI Codex CLI..."
 if [ -w "$(npm root -g)" ] 2>/dev/null; then
     npm install -g @openai/codex
