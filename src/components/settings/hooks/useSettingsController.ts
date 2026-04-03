@@ -6,10 +6,12 @@ import {
   DEFAULT_AUTH_STATUS,
   DEFAULT_CODE_EDITOR_SETTINGS,
   DEFAULT_CURSOR_PERMISSIONS,
+  DEFAULT_INSTALL_STATUS,
 } from '../constants/constants';
 import type {
   AgentProvider,
   AuthStatus,
+  InstallStatus,
   ClaudeMcpFormState,
   ClaudePermissionsState,
   CodeEditorSettingsState,
@@ -249,6 +251,11 @@ export function useSettingsController({ isOpen, initialTab, projects, onClose }:
   const [codexAuthStatus, setCodexAuthStatus] = useState<AuthStatus>(DEFAULT_AUTH_STATUS);
   const [geminiAuthStatus, setGeminiAuthStatus] = useState<AuthStatus>(DEFAULT_AUTH_STATUS);
 
+  const [claudeInstallStatus, setClaudeInstallStatus] = useState<InstallStatus>(DEFAULT_INSTALL_STATUS);
+  const [cursorInstallStatus, setCursorInstallStatus] = useState<InstallStatus>(DEFAULT_INSTALL_STATUS);
+  const [codexInstallStatus, setCodexInstallStatus] = useState<InstallStatus>(DEFAULT_INSTALL_STATUS);
+  const [geminiInstallStatus, setGeminiInstallStatus] = useState<InstallStatus>(DEFAULT_INSTALL_STATUS);
+
   const setAuthStatusByProvider = useCallback((provider: AgentProvider, status: AuthStatus) => {
     if (provider === 'claude') {
       setClaudeAuthStatus(status);
@@ -267,6 +274,40 @@ export function useSettingsController({ isOpen, initialTab, projects, onClose }:
 
     setCodexAuthStatus(status);
   }, []);
+
+  const setInstallStatusByProvider = useCallback((provider: AgentProvider, updater: (prev: InstallStatus) => InstallStatus) => {
+    const setters: Record<AgentProvider, typeof setClaudeInstallStatus> = {
+      claude: setClaudeInstallStatus,
+      cursor: setCursorInstallStatus,
+      codex: setCodexInstallStatus,
+      gemini: setGeminiInstallStatus,
+    };
+    setters[provider](updater);
+  }, []);
+
+  const checkInstallStatus = useCallback(async () => {
+    try {
+      const response = await authenticatedFetch('/api/cli-installer/status');
+      if (!response.ok) return;
+
+      const data = await toResponseJson<{ success?: boolean; clients?: Record<string, { installed?: boolean; version?: string | null }> }>(response);
+      if (!data.success || !data.clients) return;
+
+      for (const provider of ['claude', 'cursor', 'codex', 'gemini'] as AgentProvider[]) {
+        const client = data.clients[provider];
+        if (client) {
+          setInstallStatusByProvider(provider, (prev) => ({
+            ...prev,
+            installed: Boolean(client.installed),
+            version: client.version || null,
+            loading: false,
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Error checking install status:', error);
+    }
+  }, [setInstallStatusByProvider]);
 
   const checkAuthStatus = useCallback(async (provider: AgentProvider) => {
     try {
@@ -300,6 +341,74 @@ export function useSettingsController({ isOpen, initialTab, projects, onClose }:
       });
     }
   }, [setAuthStatusByProvider]);
+
+  const installClient = useCallback(async (provider: AgentProvider) => {
+    setInstallStatusByProvider(provider, (prev) => ({
+      ...prev,
+      installing: true,
+      error: null,
+      log: [],
+    }));
+
+    try {
+      const response = await authenticatedFetch(`/api/cli-installer/${provider}/install`, {
+        method: 'POST',
+      });
+
+      const data = await toResponseJson<{ success?: boolean; installed?: boolean; version?: string | null; message?: string; log?: string[] }>(response);
+
+      setInstallStatusByProvider(provider, (prev) => ({
+        ...prev,
+        installed: Boolean(data.installed ?? data.success),
+        version: data.version || null,
+        installing: false,
+        log: data.log || [],
+        error: data.success ? null : (data.message || 'Installation failed'),
+      }));
+
+      if (data.success) {
+        void checkAuthStatus(provider);
+      }
+    } catch (error) {
+      setInstallStatusByProvider(provider, (prev) => ({
+        ...prev,
+        installing: false,
+        error: getErrorMessage(error),
+      }));
+    }
+  }, [checkAuthStatus, setInstallStatusByProvider]);
+
+  const uninstallClient = useCallback(async (provider: AgentProvider) => {
+    setInstallStatusByProvider(provider, (prev) => ({
+      ...prev,
+      uninstalling: true,
+      error: null,
+      log: [],
+    }));
+
+    try {
+      const response = await authenticatedFetch(`/api/cli-installer/${provider}/uninstall`, {
+        method: 'POST',
+      });
+
+      const data = await toResponseJson<{ success?: boolean; installed?: boolean; version?: string | null; message?: string; log?: string[] }>(response);
+
+      setInstallStatusByProvider(provider, (prev) => ({
+        ...prev,
+        installed: Boolean(data.installed),
+        version: data.version || null,
+        uninstalling: false,
+        log: data.log || [],
+        error: data.success ? null : (data.message || 'Uninstall failed'),
+      }));
+    } catch (error) {
+      setInstallStatusByProvider(provider, (prev) => ({
+        ...prev,
+        uninstalling: false,
+        error: getErrorMessage(error),
+      }));
+    }
+  }, [setInstallStatusByProvider]);
 
   const fetchCursorMcpServers = useCallback(async () => {
     try {
@@ -831,7 +940,8 @@ export function useSettingsController({ isOpen, initialTab, projects, onClose }:
     void checkAuthStatus('cursor');
     void checkAuthStatus('codex');
     void checkAuthStatus('gemini');
-  }, [checkAuthStatus, initialTab, isOpen, loadSettings]);
+    void checkInstallStatus();
+  }, [checkAuthStatus, checkInstallStatus, initialTab, isOpen, loadSettings]);
 
   useEffect(() => {
     localStorage.setItem('codeEditorTheme', codeEditorSettings.theme);
@@ -939,6 +1049,12 @@ export function useSettingsController({ isOpen, initialTab, projects, onClose }:
     cursorAuthStatus,
     codexAuthStatus,
     geminiAuthStatus,
+    claudeInstallStatus,
+    cursorInstallStatus,
+    codexInstallStatus,
+    geminiInstallStatus,
+    installClient,
+    uninstallClient,
     geminiPermissionMode,
     setGeminiPermissionMode,
     openLoginForProvider,

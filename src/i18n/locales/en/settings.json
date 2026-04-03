@@ -336,6 +336,21 @@
       }
     },
     "connectionStatus": "Connection Status",
+    "installStatus": "Installation",
+    "install": {
+      "installed": "Installed",
+      "notInstalled": "Not installed",
+      "installing": "Installing...",
+      "uninstalling": "Uninstalling...",
+      "version": "Version: {{version}}",
+      "installButton": "Install",
+      "uninstallButton": "Uninstall",
+      "reinstallButton": "Reinstall",
+      "installDescription": "Install {{agent}} to use it as an AI coding assistant",
+      "installedDescription": "{{agent}} is ready to use",
+      "showLog": "Show log",
+      "hideLog": "Hide log"
+    },
     "login": {
       "title": "Login",
       "reAuthenticate": "Re-authenticate",

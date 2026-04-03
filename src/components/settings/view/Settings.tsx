@@ -59,6 +59,12 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }: Set
     cursorAuthStatus,
     codexAuthStatus,
     geminiAuthStatus,
+    claudeInstallStatus,
+    cursorInstallStatus,
+    codexInstallStatus,
+    geminiInstallStatus,
+    installClient,
+    uninstallClient,
     geminiPermissionMode,
     setGeminiPermissionMode,
     openLoginForProvider,
@@ -161,10 +167,16 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }: Set
                   cursorAuthStatus={cursorAuthStatus}
                   codexAuthStatus={codexAuthStatus}
                   geminiAuthStatus={geminiAuthStatus}
+                  claudeInstallStatus={claudeInstallStatus}
+                  cursorInstallStatus={cursorInstallStatus}
+                  codexInstallStatus={codexInstallStatus}
+                  geminiInstallStatus={geminiInstallStatus}
                   onClaudeLogin={() => openLoginForProvider('claude')}
                   onCursorLogin={() => openLoginForProvider('cursor')}
                   onCodexLogin={() => openLoginForProvider('codex')}
                   onGeminiLogin={() => openLoginForProvider('gemini')}
+                  onInstallClient={installClient}
+                  onUninstallClient={uninstallClient}
                   claudePermissions={claudePermissions}
                   onClaudePermissionsChange={setClaudePermissions}
                   cursorPermissions={cursorPermissions}

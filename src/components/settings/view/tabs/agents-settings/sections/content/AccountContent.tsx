@@ -1,13 +1,17 @@
-import { LogIn } from 'lucide-react';
+import { useState } from 'react';
+import { ChevronDown, ChevronRight, Download, LogIn, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge, Button } from '../../../../../../../shared/view/ui';
 import SessionProviderLogo from '../../../../../../llm-logo-provider/SessionProviderLogo';
-import type { AgentProvider, AuthStatus } from '../../../../../types/types';
+import type { AgentProvider, AuthStatus, InstallStatus } from '../../../../../types/types';
 
 type AccountContentProps = {
   agent: AgentProvider;
   authStatus: AuthStatus;
+  installStatus: InstallStatus;
   onLogin: () => void;
+  onInstall: () => void;
+  onUninstall: () => void;
 };
 
 type AgentVisualConfig = {
@@ -56,9 +60,12 @@ const agentConfig: Record<AgentProvider, AgentVisualConfig> = {
   },
 };
 
-export default function AccountContent({ agent, authStatus, onLogin }: AccountContentProps) {
+export default function AccountContent({ agent, authStatus, installStatus, onLogin, onInstall, onUninstall }: AccountContentProps) {
   const { t } = useTranslation('settings');
   const config = agentConfig[agent];
+  const [showLog, setShowLog] = useState(false);
+
+  const isBusy = installStatus.installing || installStatus.uninstalling;
 
   return (
     <div className="space-y-6">
@@ -70,76 +77,195 @@ export default function AccountContent({ agent, authStatus, onLogin }: AccountCo
         </div>
       </div>
 
+      {/* Installation status section */}
       <div className={`${config.bgClass} border ${config.borderClass} rounded-lg p-4`}>
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="flex-1">
               <div className={`font-medium ${config.textClass}`}>
-                {t('agents.connectionStatus')}
+                {t('agents.installStatus')}
               </div>
               <div className={`text-sm ${config.subtextClass}`}>
-                {authStatus.loading ? (
+                {installStatus.loading ? (
                   t('agents.authStatus.checkingAuth')
-                ) : authStatus.authenticated ? (
-                  t('agents.authStatus.loggedInAs', {
-                    email: authStatus.email || t('agents.authStatus.authenticatedUser'),
-                  })
+                ) : installStatus.installing ? (
+                  t('agents.install.installing')
+                ) : installStatus.uninstalling ? (
+                  t('agents.install.uninstalling')
+                ) : installStatus.installed ? (
+                  installStatus.version
+                    ? t('agents.install.version', { version: installStatus.version })
+                    : t('agents.install.installedDescription', { agent: config.name })
                 ) : (
-                  t('agents.authStatus.notConnected')
+                  t('agents.install.installDescription', { agent: config.name })
                 )}
               </div>
             </div>
             <div>
-              {authStatus.loading ? (
+              {installStatus.loading ? (
                 <Badge variant="secondary" className="bg-muted">
                   {t('agents.authStatus.checking')}
                 </Badge>
-              ) : authStatus.authenticated ? (
+              ) : isBusy ? (
+                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                  {installStatus.installing ? t('agents.install.installing') : t('agents.install.uninstalling')}
+                </Badge>
+              ) : installStatus.installed ? (
                 <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                  {t('agents.authStatus.connected')}
+                  {t('agents.install.installed')}
                 </Badge>
               ) : (
                 <Badge variant="secondary" className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">
-                  {t('agents.authStatus.disconnected')}
+                  {t('agents.install.notInstalled')}
                 </Badge>
               )}
             </div>
           </div>
 
-          {authStatus.method !== 'api_key' && (
+          {/* Install/Uninstall actions */}
+          {!installStatus.loading && (
             <div className="border-t border-border/50 pt-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className={`font-medium ${config.textClass}`}>
-                    {authStatus.authenticated ? t('agents.login.reAuthenticate') : t('agents.login.title')}
-                  </div>
-                  <div className={`text-sm ${config.subtextClass}`}>
-                    {authStatus.authenticated
-                      ? t('agents.login.reAuthDescription')
-                      : t('agents.login.description', { agent: config.name })}
-                  </div>
-                </div>
-                <Button
-                  onClick={onLogin}
-                  className={`${config.buttonClass} text-white`}
-                  size="sm"
-                >
-                  <LogIn className="mr-2 h-4 w-4" />
-                  {authStatus.authenticated ? t('agents.login.reLoginButton') : t('agents.login.button')}
-                </Button>
+              <div className="flex items-center gap-2">
+                {!installStatus.installed && (
+                  <Button
+                    onClick={onInstall}
+                    disabled={isBusy}
+                    className={`${config.buttonClass} text-white`}
+                    size="sm"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    {t('agents.install.installButton')}
+                  </Button>
+                )}
+                {installStatus.installed && (
+                  <>
+                    <Button
+                      onClick={onInstall}
+                      disabled={isBusy}
+                      className={`${config.buttonClass} text-white`}
+                      size="sm"
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      {t('agents.install.reinstallButton')}
+                    </Button>
+                    <Button
+                      onClick={onUninstall}
+                      disabled={isBusy}
+                      variant="outline"
+                      size="sm"
+                      className="text-red-600 hover:text-red-700 dark:text-red-400"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      {t('agents.install.uninstallButton')}
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           )}
 
-          {authStatus.error && (
-            <div className="border-t border-border/50 pt-4">
+          {/* Install log (collapsible) */}
+          {installStatus.log.length > 0 && (
+            <div className="border-t border-border/50 pt-3">
+              <button
+                onClick={() => setShowLog(!showLog)}
+                className={`flex items-center gap-1 text-xs font-medium ${config.subtextClass} hover:underline`}
+              >
+                {showLog ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                {showLog ? t('agents.install.hideLog') : t('agents.install.showLog')}
+              </button>
+              {showLog && (
+                <pre className="mt-2 max-h-40 overflow-auto rounded bg-black/10 p-2 text-xs text-foreground dark:bg-white/5">
+                  {installStatus.log.join('\n')}
+                </pre>
+              )}
+            </div>
+          )}
+
+          {/* Install error */}
+          {installStatus.error && (
+            <div className="border-t border-border/50 pt-3">
               <div className="text-sm text-red-600 dark:text-red-400">
-                {t('agents.error', { error: authStatus.error })}
+                {t('agents.error', { error: installStatus.error })}
               </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* Connection status section (only shown when installed) */}
+      {installStatus.installed && (
+        <div className={`${config.bgClass} border ${config.borderClass} rounded-lg p-4`}>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <div className={`font-medium ${config.textClass}`}>
+                  {t('agents.connectionStatus')}
+                </div>
+                <div className={`text-sm ${config.subtextClass}`}>
+                  {authStatus.loading ? (
+                    t('agents.authStatus.checkingAuth')
+                  ) : authStatus.authenticated ? (
+                    t('agents.authStatus.loggedInAs', {
+                      email: authStatus.email || t('agents.authStatus.authenticatedUser'),
+                    })
+                  ) : (
+                    t('agents.authStatus.notConnected')
+                  )}
+                </div>
+              </div>
+              <div>
+                {authStatus.loading ? (
+                  <Badge variant="secondary" className="bg-muted">
+                    {t('agents.authStatus.checking')}
+                  </Badge>
+                ) : authStatus.authenticated ? (
+                  <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                    {t('agents.authStatus.connected')}
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">
+                    {t('agents.authStatus.disconnected')}
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            {authStatus.method !== 'api_key' && (
+              <div className="border-t border-border/50 pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className={`font-medium ${config.textClass}`}>
+                      {authStatus.authenticated ? t('agents.login.reAuthenticate') : t('agents.login.title')}
+                    </div>
+                    <div className={`text-sm ${config.subtextClass}`}>
+                      {authStatus.authenticated
+                        ? t('agents.login.reAuthDescription')
+                        : t('agents.login.description', { agent: config.name })}
+                    </div>
+                  </div>
+                  <Button
+                    onClick={onLogin}
+                    className={`${config.buttonClass} text-white`}
+                    size="sm"
+                  >
+                    <LogIn className="mr-2 h-4 w-4" />
+                    {authStatus.authenticated ? t('agents.login.reLoginButton') : t('agents.login.button')}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {authStatus.error && (
+              <div className="border-t border-border/50 pt-4">
+                <div className="text-sm text-red-600 dark:text-red-400">
+                  {t('agents.error', { error: authStatus.error })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

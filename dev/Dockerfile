@@ -1,9 +1,12 @@
 # =============================================================================
 # CloudCLI UI — Development Image
 # =============================================================================
-# Multi-stage build that produces a self-contained image with the CloudCLI web
-# UI and all four AI clients pre-installed at build time:
+# Multi-stage build that produces a lightweight image with the CloudCLI web UI.
+# AI clients are NOT pre-installed — they are installed on-demand from the
+# Settings screen, keeping the image small and giving users control over which
+# clients to install.
 #
+# Supported clients (installed via Settings > Agents > Account):
 #   - Claude Code     (official installer)
 #   - Gemini CLI      (npm global)
 #   - OpenAI Codex    (npm global)
@@ -41,11 +44,11 @@ RUN printf 'SERVER_PORT=8080\nHOST=0.0.0.0\n' > .env \
     && npm prune --production \
     && rm -rf .git .husky .github dev
 
-# ── Stage 2: Runtime with pre-installed AI clients ──────────────────────────
+# ── Stage 2: Runtime (AI clients installed on-demand via Settings UI) ───────
 FROM ubuntu:24.04
 
 LABEL maintainer="CloudCLI Contributors"
-LABEL description="CloudCLI UI with pre-installed AI clients (Claude, Gemini, Codex, Cursor)"
+LABEL description="CloudCLI UI — AI clients installed on-demand from Settings"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -76,11 +79,8 @@ RUN useradd -m -s /bin/bash ${USERNAME} \
 # Copy built app from Stage 1.
 COPY --from=builder /app /opt/cloudcli
 
-# Install all four AI clients at build time.
-COPY dev/install-clients.sh /tmp/install-clients.sh
-RUN chmod +x /tmp/install-clients.sh \
-    && USERNAME=${USERNAME} /tmp/install-clients.sh \
-    && rm /tmp/install-clients.sh
+# Ensure on-demand installer scripts are executable.
+RUN chmod +x /opt/cloudcli/server/installers/*/*.sh 2>/dev/null || true
 
 # Copy runtime entrypoint outside /opt/cloudcli so a dev-mode volume mount
 # over the app directory does not mask it.

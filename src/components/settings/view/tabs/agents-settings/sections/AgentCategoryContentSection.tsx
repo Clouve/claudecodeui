@@ -36,7 +36,10 @@ export default function AgentCategoryContentSection({
         <AccountContent
           agent={selectedAgent}
           authStatus={agentContextById[selectedAgent].authStatus}
+          installStatus={agentContextById[selectedAgent].installStatus}
           onLogin={agentContextById[selectedAgent].onLogin}
+          onInstall={agentContextById[selectedAgent].onInstall}
+          onUninstall={agentContextById[selectedAgent].onUninstall}
         />
       )}
 

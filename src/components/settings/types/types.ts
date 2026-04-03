@@ -26,6 +26,16 @@ export type AuthStatus = {
   method?: string;
 };
 
+export type InstallStatus = {
+  installed: boolean;
+  version: string | null;
+  loading: boolean;
+  installing: boolean;
+  uninstalling: boolean;
+  error: string | null;
+  log: string[];
+};
+
 export type KeyValueMap = Record<string, string>;
 
 export type McpServerConfig = {

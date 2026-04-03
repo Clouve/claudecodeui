@@ -1,6 +1,7 @@
 import type {
   AgentProvider,
   AuthStatus,
+  InstallStatus,
   AgentCategory,
   ClaudePermissionsState,
   CursorPermissionsState,
@@ -13,7 +14,10 @@ import type {
 
 export type AgentContext = {
   authStatus: AuthStatus;
+  installStatus: InstallStatus;
   onLogin: () => void;
+  onInstall: () => void;
+  onUninstall: () => void;
 };
 
 export type AgentContextByProvider = Record<AgentProvider, AgentContext>;
@@ -23,10 +27,16 @@ export type AgentsSettingsTabProps = {
   cursorAuthStatus: AuthStatus;
   codexAuthStatus: AuthStatus;
   geminiAuthStatus: AuthStatus;
+  claudeInstallStatus: InstallStatus;
+  cursorInstallStatus: InstallStatus;
+  codexInstallStatus: InstallStatus;
+  geminiInstallStatus: InstallStatus;
   onClaudeLogin: () => void;
   onCursorLogin: () => void;
   onCodexLogin: () => void;
   onGeminiLogin: () => void;
+  onInstallClient: (provider: AgentProvider) => void;
+  onUninstallClient: (provider: AgentProvider) => void;
   claudePermissions: ClaudePermissionsState;
   onClaudePermissionsChange: (value: ClaudePermissionsState) => void;
   cursorPermissions: CursorPermissionsState;

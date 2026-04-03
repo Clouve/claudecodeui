@@ -2,6 +2,7 @@ import type {
   AgentCategory,
   AgentProvider,
   AuthStatus,
+  InstallStatus,
   ClaudeMcpFormState,
   CodexMcpFormState,
   CodeEditorSettingsState,
@@ -39,6 +40,16 @@ export const DEFAULT_AUTH_STATUS: AuthStatus = {
   email: null,
   loading: true,
   error: null,
+};
+
+export const DEFAULT_INSTALL_STATUS: InstallStatus = {
+  installed: false,
+  version: null,
+  loading: true,
+  installing: false,
+  uninstalling: false,
+  error: null,
+  log: [],
 };
 
 export const DEFAULT_MCP_TEST_RESULT: McpTestResult = {
