@@ -61,9 +61,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 # AI-client-specific deps (jq, python3, bubblewrap) are installed on-demand
 # by each client's installer script — not baked into the base image.
 # bash is already included in ubuntu:24.04.
+# busybox-static is needed for the volume-seeding bootstrap (init.sh).
 RUN printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d \
     && chmod +x /usr/sbin/policy-rc.d \
+    && printf '#!/bin/sh\nexit 0\n' > /usr/bin/systemctl \
+    && chmod +x /usr/bin/systemctl \
     && apt-get update && apt-get install -y --no-install-recommends \
+        busybox-static \
         ca-certificates \
         curl \
         git \
@@ -87,12 +91,26 @@ RUN chmod +x /opt/cloudcli/server/installers/*/*.sh 2>/dev/null || true \
     && chmod +x /usr/local/bin/cloudcli-entrypoint.sh \
     && chown -R ${USERNAME}:${USERNAME} /opt/cloudcli
 
-USER ${USERNAME}
+# ── Volume seeding: snapshot directories that will be mounted as volumes ────
+# Place the static busybox binary outside /usr so the bootstrap entrypoint
+# (init.sh) remains executable even when /usr is mounted as an empty volume.
+# Seed tarballs capture the fully-configured image state; init.sh extracts
+# them on first start and writes a sentinel to skip extraction on restarts.
+COPY dev/init.sh /cloudcli-seed/init.sh
+RUN cp /usr/bin/busybox /cloudcli-seed/busybox \
+    && chmod +x /cloudcli-seed/init.sh \
+    && tar czf /cloudcli-seed/home-seed.tar.gz -C / home \
+    && tar czf /cloudcli-seed/usr-seed.tar.gz -C / usr \
+    && tar czf /cloudcli-seed/var-seed.tar.gz -C / \
+        --exclude=var/run \
+        --exclude=var/lock \
+        var
+
 WORKDIR /opt/cloudcli
 
 ENV PATH="/home/${USERNAME}/.local/bin:/usr/local/bin:${PATH}"
 
 EXPOSE 5173 8080
 
-ENTRYPOINT ["cloudcli-entrypoint.sh"]
+ENTRYPOINT ["/cloudcli-seed/busybox", "sh", "/cloudcli-seed/init.sh"]
 CMD ["node", "server/index.js"]

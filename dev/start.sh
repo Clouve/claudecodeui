@@ -21,6 +21,12 @@ REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 CONTAINER_NAME="cloudcli-dev"
 IMAGE_NAME="cloudcli-dev"
 
+# Named volumes for directories seeded by init.sh. These persist AI clients
+# installed at runtime (via Settings > Agents) across container restarts.
+VOLUME_HOME="cloudcli-home"
+VOLUME_USR="cloudcli-usr"
+VOLUME_VAR="cloudcli-var"
+
 # ── Parse mode argument ─────────────────────────────────────────────────────
 MODE="dev"
 if [ $# -gt 0 ]; then
@@ -55,11 +61,16 @@ if [ "$MODE" = "dev" ]; then
 
     # Mount source code for live editing. A named volume for node_modules
     # keeps Linux-compiled native modules separate from the host OS.
+    # Home/usr/var volumes are seeded on first start by init.sh and persist
+    # AI clients installed at runtime across container restarts.
     docker run -d \
         --name "$CONTAINER_NAME" \
         -p "$PORT:5173" \
         -v "$REPO_ROOT:/opt/cloudcli" \
         -v cloudcli-node-modules:/opt/cloudcli/node_modules \
+        -v "$VOLUME_HOME:/home" \
+        -v "$VOLUME_USR:/usr" \
+        -v "$VOLUME_VAR:/var" \
         $ENV_ARGS \
         "$@" \
         "$IMAGE_NAME" \
@@ -71,6 +82,9 @@ else
     docker run -d \
         --name "$CONTAINER_NAME" \
         -p "$PORT:8080" \
+        -v "$VOLUME_HOME:/home" \
+        -v "$VOLUME_USR:/usr" \
+        -v "$VOLUME_VAR:/var" \
         $ENV_ARGS \
         "$@" \
         "$IMAGE_NAME"

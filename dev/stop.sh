@@ -7,10 +7,12 @@ set -eo pipefail
 # Usage: ./dev/stop.sh [--clean|-c]
 #
 # Options:
-#   --clean, -c   Also remove the node_modules Docker volume
+#   --clean, -c   Also remove all persistent Docker volumes (node_modules,
+#                 home, usr, var). This resets the container to a fresh state —
+#                 any AI clients installed at runtime will need to be reinstalled.
 
 CONTAINER_NAME="cloudcli-dev"
-VOLUME_NAME="cloudcli-node-modules"
+VOLUMES="cloudcli-node-modules cloudcli-home cloudcli-usr cloudcli-var"
 
 CLEAN=false
 for arg in "$@"; do
@@ -33,11 +35,11 @@ else
 fi
 
 if [ "$CLEAN" = true ]; then
-    if docker volume ls -q | grep -q "^${VOLUME_NAME}$"; then
-        echo "Removing volume $VOLUME_NAME ..."
-        docker volume rm "$VOLUME_NAME"
-        echo "Volume removed."
-    else
-        echo "Volume $VOLUME_NAME does not exist."
-    fi
+    for vol in $VOLUMES; do
+        if docker volume ls -q | grep -q "^${vol}$"; then
+            echo "Removing volume $vol ..."
+            docker volume rm "$vol"
+            echo "Volume $vol removed."
+        fi
+    done
 fi
