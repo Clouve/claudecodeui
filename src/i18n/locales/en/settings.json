@@ -381,7 +381,8 @@
       "updateButton": "Update Key",
       "updateHint": "Enter a new key above to update your API credentials",
       "validateFirst": "A valid API key is required before installation",
-      "envLabel": "Set via environment variable — cannot be edited here"
+      "envLabel": "Set via environment variable — cannot be edited here",
+      "getKey": "Get a key"
     },
     "unified": {
       "notSetUp": "Not set up",

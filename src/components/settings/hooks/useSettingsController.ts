@@ -353,10 +353,15 @@ export function useSettingsController({ isOpen, initialTab, projects, onClose }:
         });
       }
 
+      const masked = data.valid && apiKey.length >= 5
+        ? '••••••••' + apiKey.slice(-4)
+        : data.valid ? '••••••••' : null;
+
       setApiKeyStatusByProvider(provider, (prev) => ({
         ...prev,
         available: Boolean(data.valid),
         source: data.valid ? 'env' : prev.source,
+        masked: masked ?? prev.masked,
         validationStatus: data.valid ? 'valid' : 'invalid',
         validationError: data.error || null,
       }));

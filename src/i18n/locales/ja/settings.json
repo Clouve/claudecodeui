@@ -380,7 +380,8 @@
       "updateButton": "キーを更新",
       "updateHint": "上に新しいキーを入力してAPI資格情報を更新してください",
       "validateFirst": "インストール前に有効なAPIキーが必要です",
-      "envLabel": "環境変数で設定済み — ここでは編集できません"
+      "envLabel": "環境変数で設定済み — ここでは編集できません",
+      "getKey": "キーを取得"
     },
     "unified": {
       "notSetUp": "未設定",

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Check, ChevronDown, ChevronRight, Download, Loader2, Plug, Trash2, X } from 'lucide-react';
+import { Check, ChevronDown, ChevronRight, Download, ExternalLink, Loader2, Plug, Trash2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge, Button } from '../../../../../../../shared/view/ui';
 import SessionProviderLogo from '../../../../../../llm-logo-provider/SessionProviderLogo';
@@ -24,6 +24,7 @@ type AgentVisualConfig = {
   textClass: string;
   subtextClass: string;
   buttonClass: string;
+  keyUrl: string;
   description?: string;
 };
 
@@ -35,6 +36,7 @@ const agentConfig: Record<AgentProvider, AgentVisualConfig> = {
     textClass: 'text-amber-900 dark:text-amber-100',
     subtextClass: 'text-amber-700 dark:text-amber-300',
     buttonClass: 'bg-stone-800 hover:bg-stone-900 active:bg-stone-950',
+    keyUrl: 'https://console.anthropic.com/settings/keys',
   },
   cursor: {
     name: 'Cursor',
@@ -43,6 +45,7 @@ const agentConfig: Record<AgentProvider, AgentVisualConfig> = {
     textClass: 'text-stone-900 dark:text-stone-100',
     subtextClass: 'text-stone-600 dark:text-stone-400',
     buttonClass: 'bg-stone-800 hover:bg-stone-900 active:bg-stone-950 dark:bg-stone-700 dark:hover:bg-stone-600 dark:active:bg-stone-500',
+    keyUrl: 'https://www.cursor.com/settings',
   },
   codex: {
     name: 'Codex',
@@ -51,6 +54,7 @@ const agentConfig: Record<AgentProvider, AgentVisualConfig> = {
     textClass: 'text-violet-900 dark:text-violet-100',
     subtextClass: 'text-violet-700 dark:text-violet-300',
     buttonClass: 'bg-violet-700 hover:bg-violet-800 active:bg-violet-900',
+    keyUrl: 'https://platform.openai.com/api-keys',
   },
   gemini: {
     name: 'Gemini',
@@ -60,6 +64,7 @@ const agentConfig: Record<AgentProvider, AgentVisualConfig> = {
     textClass: 'text-blue-900 dark:text-blue-100',
     subtextClass: 'text-blue-700 dark:text-blue-300',
     buttonClass: 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800',
+    keyUrl: 'https://aistudio.google.com/apikey',
   },
 };
 
@@ -239,25 +244,36 @@ export default function AccountContent({ agent, authStatus, installStatus, apiKe
 
           {/* API Key input */}
           <div className="border-t border-border/50 pt-4">
-            <div className={`mb-2 text-sm font-medium ${config.textClass}`}>
-              {t('agents.apiKey.title')}
-              {hasPersistedKey && (
-                <span className={`ml-2 text-xs font-normal ${config.subtextClass}`}>
-                  {t('agents.apiKey.setViaEnv')}
-                </span>
-              )}
-              {isKeyValidated && !hasPersistedKey && (
-                <span className="ml-2 text-xs font-normal text-green-600 dark:text-green-400">
-                  <Check className="mr-0.5 inline h-3 w-3" />
-                  {isCursor ? t('agents.apiKey.saved') : t('agents.apiKey.valid')}
-                </span>
-              )}
-              {apiKeyStatus.validationStatus === 'invalid' && (
-                <span className="ml-2 text-xs font-normal text-red-600 dark:text-red-400">
-                  <X className="mr-0.5 inline h-3 w-3" />
-                  {t('agents.apiKey.invalid')}
-                </span>
-              )}
+            <div className={`mb-2 flex items-center text-sm font-medium ${config.textClass}`}>
+              <span>
+                {t('agents.apiKey.title')}
+                {hasPersistedKey && (
+                  <span className={`ml-2 text-xs font-normal ${config.subtextClass}`}>
+                    {t('agents.apiKey.setViaEnv')}
+                  </span>
+                )}
+                {isKeyValidated && !hasPersistedKey && (
+                  <span className="ml-2 text-xs font-normal text-green-600 dark:text-green-400">
+                    <Check className="mr-0.5 inline h-3 w-3" />
+                    {isCursor ? t('agents.apiKey.saved') : t('agents.apiKey.valid')}
+                  </span>
+                )}
+                {apiKeyStatus.validationStatus === 'invalid' && (
+                  <span className="ml-2 text-xs font-normal text-red-600 dark:text-red-400">
+                    <X className="mr-0.5 inline h-3 w-3" />
+                    {t('agents.apiKey.invalid')}
+                  </span>
+                )}
+              </span>
+              <a
+                href={config.keyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`ml-auto flex items-center gap-1 text-xs font-normal ${config.subtextClass} hover:underline`}
+              >
+                {t('agents.apiKey.getKey')}
+                <ExternalLink className="h-3 w-3" />
+              </a>
             </div>
 
             <div className="flex items-center gap-2">

@@ -379,7 +379,8 @@
       "updateButton": "Schlüssel aktualisieren",
       "updateHint": "Gib oben einen neuen Schlüssel ein, um deine API-Zugangsdaten zu aktualisieren",
       "validateFirst": "Ein gültiger API-Schlüssel ist vor der Installation erforderlich",
-      "envLabel": "Über Umgebungsvariable gesetzt – kann hier nicht bearbeitet werden"
+      "envLabel": "Über Umgebungsvariable gesetzt – kann hier nicht bearbeitet werden",
+      "getKey": "Schlüssel anfordern"
     },
     "unified": {
       "notSetUp": "Nicht eingerichtet",

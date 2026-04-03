@@ -380,7 +380,8 @@
       "updateButton": "更新密钥",
       "updateHint": "在上方输入新密钥以更新您的 API 凭据",
       "validateFirst": "安装前需要有效的 API 密钥",
-      "envLabel": "通过环境变量设置 — 无法在此编辑"
+      "envLabel": "通过环境变量设置 — 无法在此编辑",
+      "getKey": "获取密钥"
     },
     "unified": {
       "notSetUp": "未设置",
