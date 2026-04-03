@@ -105,7 +105,27 @@
     "git": "Git",
     "apiTokens": "API & Token",
     "tasks": "Aufgaben",
+    "notifications": "Benachrichtigungen",
     "plugins": "Plugins"
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "description": "Steuert, welche Benachrichtigungsereignisse du erhältst.",
+    "webPush": {
+      "title": "Web-Push-Benachrichtigungen",
+      "enable": "Push-Benachrichtigungen aktivieren",
+      "disable": "Push-Benachrichtigungen deaktivieren",
+      "enabled": "Push-Benachrichtigungen sind aktiviert",
+      "loading": "Wird aktualisiert...",
+      "unsupported": "Push-Benachrichtigungen werden in diesem Browser nicht unterstützt.",
+      "denied": "Push-Benachrichtigungen sind blockiert. Bitte erlaube sie in deinen Browsereinstellungen."
+    },
+    "events": {
+      "title": "Ereignistypen",
+      "actionRequired": "Aktion erforderlich",
+      "stop": "Ausführung gestoppt",
+      "error": "Ausführung fehlgeschlagen"
+    }
   },
   "appearanceSettings": {
     "darkMode": {
@@ -315,6 +335,23 @@
       }
     },
     "connectionStatus": "Verbindungsstatus",
+    "installStatus": "Installation",
+    "install": {
+      "installed": "Installiert",
+      "notInstalled": "Nicht installiert",
+      "installing": "Wird installiert...",
+      "uninstalling": "Wird deinstalliert...",
+      "version": "Version: {{version}}",
+      "installButton": "Installieren",
+      "uninstallButton": "Deinstallieren",
+      "reinstallButton": "Neu installieren",
+      "installDescription": "Installiere {{agent}}, um es als KI-Codierassistent zu verwenden",
+      "installedDescription": "{{agent}} ist einsatzbereit",
+      "showLog": "Protokoll anzeigen",
+      "hideLog": "Protokoll ausblenden",
+      "waitingForLog": "Installation – warte auf Ausgabe…",
+      "uninstallWaitingForLog": "Deinstallation – warte auf Ausgabe…"
+    },
     "login": {
       "title": "Anmelden",
       "reAuthenticate": "Erneut authentifizieren",
@@ -322,6 +359,34 @@
       "reAuthDescription": "Mit einem anderen Konto anmelden oder Anmeldedaten aktualisieren",
       "button": "Anmelden",
       "reLoginButton": "Erneut anmelden"
+    },
+    "apiKey": {
+      "title": "API-Schlüssel",
+      "description": "Gib deinen API-Schlüssel für {{agent}} ein, um die Installation zu ermöglichen",
+      "setViaEnv": "Gespeichert",
+      "validated": "API-Schlüssel erfolgreich validiert",
+      "cursorNote": "Gib deinen Cursor-API-Schlüssel ein – die Authentifizierung wird nach der Installation überprüft",
+      "cursorSaved": "API-Schlüssel gespeichert – wird nach der Installation überprüft",
+      "validating": "Wird validiert...",
+      "saving": "Wird gespeichert...",
+      "valid": "Gültig",
+      "saved": "Gespeichert",
+      "saveButton": "Speichern",
+      "invalid": "Ungültig",
+      "notSet": "Nicht gesetzt",
+      "placeholder": "{{agent}}-API-Schlüssel eingeben...",
+      "validateButton": "Validieren",
+      "updateButton": "Schlüssel aktualisieren",
+      "updateHint": "Gib oben einen neuen Schlüssel ein, um deine API-Zugangsdaten zu aktualisieren",
+      "validateFirst": "Ein gültiger API-Schlüssel ist vor der Installation erforderlich",
+      "envLabel": "Über Umgebungsvariable gesetzt – kann hier nicht bearbeitet werden"
+    },
+    "unified": {
+      "notSetUp": "Nicht eingerichtet",
+      "ready": "Bereit zur Installation",
+      "validateAndInstall": "Validieren & Installieren",
+      "saveAndInstall": "Speichern & Installieren",
+      "settingUp": "Wird eingerichtet…"
     },
     "error": "Fehler: {{error}}"
   },
@@ -455,13 +520,19 @@
     "installFailed": "Installation fehlgeschlagen",
     "uninstallFailed": "Deinstallation fehlgeschlagen",
     "toggleFailed": "Umschalten fehlgeschlagen",
-    "buildYourOwn": "Eigenes Plugin erstellen",
+    "starterPluginLabel": "Starter-Plugin",
     "starter": "Starter",
     "docs": "Dokumentation",
     "starterPlugin": {
       "name": "Projektstatistiken",
       "badge": "starter",
       "description": "Dateianzahl, Codezeilen, Dateityp-Aufschlüsselung und aktuelle Aktivitäten für dein Projekt.",
+      "install": "Installieren"
+    },
+    "terminalPlugin": {
+      "name": "Terminal",
+      "badge": "offiziell",
+      "description": "Integriertes Terminal mit vollem Shell-Zugriff direkt in der Oberfläche.",
       "install": "Installieren"
     },
     "morePlugins": "Mehr",

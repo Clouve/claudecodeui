@@ -336,6 +336,23 @@
       }
     },
     "connectionStatus": "연결 상태",
+    "installStatus": "설치 상태",
+    "install": {
+      "installed": "설치됨",
+      "notInstalled": "미설치",
+      "installing": "설치 중...",
+      "uninstalling": "삭제 중...",
+      "version": "버전: {{version}}",
+      "installButton": "설치",
+      "uninstallButton": "삭제",
+      "reinstallButton": "재설치",
+      "installDescription": "AI 코딩 어시스턴트로 사용하려면 {{agent}}를 설치하세요",
+      "installedDescription": "{{agent}}를 사용할 준비가 되었습니다",
+      "showLog": "로그 보기",
+      "hideLog": "로그 숨기기",
+      "waitingForLog": "설치 중 — 출력 대기 중…",
+      "uninstallWaitingForLog": "삭제 중 — 출력 대기 중…"
+    },
     "login": {
       "title": "로그인",
       "reAuthenticate": "재인증",
@@ -343,6 +360,34 @@
       "reAuthDescription": "다른 계정으로 로그인하거나 자격 증명을 새로고침하세요",
       "button": "로그인",
       "reLoginButton": "재로그인"
+    },
+    "apiKey": {
+      "title": "API 키",
+      "description": "설치를 활성화하려면 {{agent}} API 키를 입력하세요",
+      "setViaEnv": "저장됨",
+      "validated": "API 키가 성공적으로 검증되었습니다",
+      "cursorNote": "Cursor API 키를 입력하세요 — 인증은 설치 후 확인됩니다",
+      "cursorSaved": "API 키가 저장되었습니다 — 설치 후 확인됩니다",
+      "validating": "검증 중...",
+      "saving": "저장 중...",
+      "valid": "유효",
+      "saved": "저장됨",
+      "saveButton": "저장",
+      "invalid": "유효하지 않음",
+      "notSet": "미설정",
+      "placeholder": "{{agent}} API 키 입력...",
+      "validateButton": "검증",
+      "updateButton": "키 업데이트",
+      "updateHint": "위에 새 키를 입력하여 API 자격 증명을 업데이트하세요",
+      "validateFirst": "설치 전에 유효한 API 키가 필요합니다",
+      "envLabel": "환경 변수로 설정됨 — 여기서 편집할 수 없습니다"
+    },
+    "unified": {
+      "notSetUp": "설정되지 않음",
+      "ready": "설치 준비 완료",
+      "validateAndInstall": "검증 후 설치",
+      "saveAndInstall": "저장 후 설치",
+      "settingUp": "설정 중…"
     },
     "error": "오류: {{error}}"
   },
@@ -476,13 +521,19 @@
     "installFailed": "설치 실패",
     "uninstallFailed": "삭제 실패",
     "toggleFailed": "토글 실패",
-    "buildYourOwn": "나만의 플러그인 만들기",
+    "starterPluginLabel": "스타터 플러그인",
     "starter": "스타터",
     "docs": "문서",
     "starterPlugin": {
       "name": "프로젝트 통계",
       "badge": "스타터",
       "description": "프로젝트의 파일 수, 코드 라인 수, 파일 유형별 분석 및 최근 활동을 확인합니다.",
+      "install": "설치"
+    },
+    "terminalPlugin": {
+      "name": "터미널",
+      "badge": "공식",
+      "description": "인터페이스 내에서 직접 사용할 수 있는 통합 터미널로 전체 셸 접근을 제공합니다.",
       "install": "설치"
     },
     "morePlugins": "더 보기",

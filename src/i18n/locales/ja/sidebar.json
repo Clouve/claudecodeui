@@ -46,7 +46,8 @@
     "editSessionName": "セッション名を手動で編集",
     "deleteSession": "このセッションを完全に削除",
     "save": "保存",
-    "cancel": "キャンセル"
+    "cancel": "キャンセル",
+    "clearSearch": "検索をクリア"
   },
   "navigation": {
     "chat": "チャット",
@@ -103,11 +104,24 @@
   "version": {
     "updateAvailable": "アップデートあり"
   },
+  "search": {
+    "modeProjects": "プロジェクト",
+    "modeConversations": "会話",
+    "conversationsPlaceholder": "会話内を検索...",
+    "searching": "検索中...",
+    "noResults": "結果が見つかりません",
+    "tryDifferentQuery": "別の検索語を試してください",
+    "matches_one": "{{count}} 件の一致",
+    "matches_other": "{{count}} 件の一致",
+    "projectsScanned_one": "{{count}} プロジェクトをスキャン",
+    "projectsScanned_other": "{{count}} プロジェクトをスキャン"
+  },
   "deleteConfirmation": {
     "deleteProject": "プロジェクトを削除",
     "deleteSession": "セッションを削除",
     "confirmDelete": "本当に削除しますか？",
-    "sessionCount": "このプロジェクトには{{count}}件の会話があります。",
+    "sessionCount_one": "このプロジェクトには {{count}} 件の会話があります。",
+    "sessionCount_other": "このプロジェクトには {{count}} 件の会話があります。",
     "allConversationsDeleted": "すべての会話が完全に削除されます。",
     "cannotUndo": "この操作は取り消せません。"
   }

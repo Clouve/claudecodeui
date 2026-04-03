@@ -17,7 +17,8 @@
     "tool": "ツール",
     "claude": "Claude",
     "cursor": "Cursor",
-    "codex": "Codex"
+    "codex": "Codex",
+    "gemini": "Gemini"
   },
   "tools": {
     "settings": "ツール設定",
@@ -100,6 +101,24 @@
     },
     "technicalDetails": "技術的な詳細"
   },
+  "gemini": {
+    "permissionMode": "Gemini 権限モード",
+    "description": "Gemini CLI の操作承認の処理方法を制御します。",
+    "modes": {
+      "default": {
+        "title": "標準（承認を要求）",
+        "description": "Gemini はコマンドの実行、ファイルの書き込み、Web リソースの取得前に承認を求めます。"
+      },
+      "autoEdit": {
+        "title": "自動編集（ファイル承認をスキップ）",
+        "description": "Gemini はファイルの編集と Web フェッチを自動的に承認しますが、シェルコマンドには確認を求めます。"
+      },
+      "yolo": {
+        "title": "YOLO（すべての権限をバイパス）",
+        "description": "Gemini はすべての操作を確認なしで実行します。注意してください。"
+      }
+    }
+  },
   "input": {
     "placeholder": "/ でコマンド、@ でファイル指定、または {{provider}} に何でも聞いてください...",
     "placeholderDefault": "メッセージを入力...",
@@ -113,7 +132,9 @@
       "enter": "Enterで送信 • Shift+Enterで改行 • Tabでモード切替 • / でスラッシュコマンド"
     },
     "clickToChangeMode": "クリックで権限モードを変更（または入力欄でTab）",
-    "showAllCommands": "すべてのコマンドを表示"
+    "showAllCommands": "すべてのコマンドを表示",
+    "clearInput": "入力をクリア",
+    "scrollToBottom": "下にスクロール"
   },
   "thinkingMode": {
     "selector": {
@@ -158,12 +179,14 @@
     "providerInfo": {
       "anthropic": "by Anthropic",
       "openai": "by OpenAI",
-      "cursorEditor": "AIコードエディタ"
+      "cursorEditor": "AIコードエディタ",
+      "google": "by Google"
     },
     "readyPrompt": {
       "claude": "{{model}}でClaudeを使用する準備ができました。下にメッセージを入力してください。",
       "cursor": "{{model}}でCursorを使用する準備ができました。下にメッセージを入力してください。",
       "codex": "{{model}}でCodexを使用する準備ができました。下にメッセージを入力してください。",
+      "gemini": "{{model}}でGeminiを使用する準備ができました。下にメッセージを入力してください。",
       "default": "上からプロバイダーを選択して開始してください"
     }
   },
@@ -180,8 +203,15 @@
       "showingOf": "{{total}}件中{{shown}}件を表示",
       "scrollToLoad": "上にスクロールしてさらに読み込む",
       "showingLast": "最新{{count}}件を表示（全{{total}}件）",
-      "loadEarlier": "過去のメッセージを読み込む"
+      "loadEarlier": "過去のメッセージを読み込む",
+      "loadAll": "すべてのメッセージを読み込む",
+      "loadingAll": "すべてのメッセージを読み込み中...",
+      "allLoaded": "すべてのメッセージが読み込まれました",
+      "perfWarning": "すべてのメッセージが読み込まれました – スクロールが遅くなる場合があります。「下にスクロール」をクリックしてパフォーマンスを回復します。"
     }
+  },
+  "projectSelection": {
+    "startChatWithProvider": "{{provider}}とチャットを開始するプロジェクトを選択してください"
   },
   "shell": {
     "selectProject": {
@@ -235,5 +265,8 @@
     "providers": {
       "assistant": "Assistant"
     }
+  },
+  "tasks": {
+    "nextTaskPrompt": "次のタスクを開始"
   }
 }

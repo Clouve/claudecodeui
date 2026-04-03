@@ -336,6 +336,23 @@
       }
     },
     "connectionStatus": "接続状態",
+    "installStatus": "インストール状態",
+    "install": {
+      "installed": "インストール済み",
+      "notInstalled": "未インストール",
+      "installing": "インストール中...",
+      "uninstalling": "アンインストール中...",
+      "version": "バージョン: {{version}}",
+      "installButton": "インストール",
+      "uninstallButton": "アンインストール",
+      "reinstallButton": "再インストール",
+      "installDescription": "{{agent}}をAIコーディングアシスタントとして使用するにはインストールしてください",
+      "installedDescription": "{{agent}}は使用可能です",
+      "showLog": "ログを表示",
+      "hideLog": "ログを非表示",
+      "waitingForLog": "インストール中 — 出力を待っています…",
+      "uninstallWaitingForLog": "アンインストール中 — 出力を待っています…"
+    },
     "login": {
       "title": "ログイン",
       "reAuthenticate": "再認証",
@@ -343,6 +360,34 @@
       "reAuthDescription": "別のアカウントでサインインするか、認証情報を更新します",
       "button": "ログイン",
       "reLoginButton": "再ログイン"
+    },
+    "apiKey": {
+      "title": "APIキー",
+      "description": "インストールを有効にするには{{agent}}のAPIキーを入力してください",
+      "setViaEnv": "保存済み",
+      "validated": "APIキーの検証に成功しました",
+      "cursorNote": "CursorのAPIキーを入力してください — 認証はインストール後に確認されます",
+      "cursorSaved": "APIキーを保存しました — インストール後に確認されます",
+      "validating": "検証中...",
+      "saving": "保存中...",
+      "valid": "有効",
+      "saved": "保存済み",
+      "saveButton": "保存",
+      "invalid": "無効",
+      "notSet": "未設定",
+      "placeholder": "{{agent}}のAPIキーを入力...",
+      "validateButton": "検証",
+      "updateButton": "キーを更新",
+      "updateHint": "上に新しいキーを入力してAPI資格情報を更新してください",
+      "validateFirst": "インストール前に有効なAPIキーが必要です",
+      "envLabel": "環境変数で設定済み — ここでは編集できません"
+    },
+    "unified": {
+      "notSetUp": "未設定",
+      "ready": "インストール準備完了",
+      "validateAndInstall": "検証してインストール",
+      "saveAndInstall": "保存してインストール",
+      "settingUp": "セットアップ中…"
     },
     "error": "エラー: {{error}}"
   },
@@ -476,13 +521,19 @@
     "installFailed": "インストールに失敗しました",
     "uninstallFailed": "削除に失敗しました",
     "toggleFailed": "切り替えに失敗しました",
-    "buildYourOwn": "プラグインを自作する",
+    "starterPluginLabel": "スタータープラグイン",
     "starter": "スターター",
     "docs": "ドキュメント",
     "starterPlugin": {
       "name": "プロジェクト統計",
       "badge": "スターター",
       "description": "プロジェクトのファイル数、コード行数、ファイルタイプの内訳、最近のアクティビティを表示します。",
+      "install": "インストール"
+    },
+    "terminalPlugin": {
+      "name": "ターミナル",
+      "badge": "公式",
+      "description": "インターフェース内に直接統合されたフルシェルアクセスのターミナル。",
       "install": "インストール"
     },
     "morePlugins": "詳細",

@@ -234,5 +234,35 @@
       "updateAvailable": "Update verfügbar",
       "closeSidebar": "Seitenleiste schließen"
     }
+  },
+  "notifications": {
+    "genericTool": "ein Werkzeug",
+    "codes": {
+      "generic": {
+        "info": {
+          "title": "Benachrichtigung"
+        }
+      },
+      "permission": {
+        "required": {
+          "title": "Aktion erforderlich",
+          "body": "{{toolName}} wartet auf deine Entscheidung."
+        }
+      },
+      "run": {
+        "stopped": {
+          "title": "Ausführung gestoppt",
+          "body": "Grund: {{reason}}"
+        },
+        "failed": {
+          "title": "Ausführung fehlgeschlagen"
+        }
+      },
+      "agent": {
+        "notification": {
+          "title": "Agenten-Benachrichtigung"
+        }
+      }
+    }
   }
 }
