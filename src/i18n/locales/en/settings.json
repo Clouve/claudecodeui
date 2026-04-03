@@ -365,7 +365,7 @@
     "apiKey": {
       "title": "API Key",
       "description": "Enter your API key for {{agent}} to enable installation",
-      "setViaEnv": "API key provided via environment variable",
+      "setViaEnv": "Persisted",
       "validated": "API key validated successfully",
       "cursorNote": "Enter your Cursor API key — authentication is verified after installation",
       "cursorSaved": "API key saved — will be verified after installation",
@@ -378,8 +378,17 @@
       "notSet": "Not set",
       "placeholder": "Enter {{agent}} API key...",
       "validateButton": "Validate",
+      "updateButton": "Update Key",
+      "updateHint": "Enter a new key above to update your API credentials",
       "validateFirst": "A valid API key is required before installation",
       "envLabel": "Set via environment variable — cannot be edited here"
+    },
+    "unified": {
+      "notSetUp": "Not set up",
+      "ready": "Ready to install",
+      "validateAndInstall": "Validate & Install",
+      "saveAndInstall": "Save & Install",
+      "settingUp": "Setting up…"
     }
   },
   "permissions": {

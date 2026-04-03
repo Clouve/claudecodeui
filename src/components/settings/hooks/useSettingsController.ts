@@ -356,7 +356,7 @@ export function useSettingsController({ isOpen, initialTab, projects, onClose }:
       setApiKeyStatusByProvider(provider, (prev) => ({
         ...prev,
         available: Boolean(data.valid),
-        source: data.valid ? 'input' : prev.source,
+        source: data.valid ? 'env' : prev.source,
         validationStatus: data.valid ? 'valid' : 'invalid',
         validationError: data.error || null,
       }));
@@ -370,16 +370,11 @@ export function useSettingsController({ isOpen, initialTab, projects, onClose }:
   }, [setApiKeyStatusByProvider]);
 
   const resetApiKeyValidation = useCallback((provider: AgentProvider) => {
-    setApiKeyStatusByProvider(provider, (prev) => {
-      // Don't reset env-var keys — they are always pre-validated
-      if (prev.source === 'env') return prev;
-      return {
-        ...prev,
-        available: false,
-        validationStatus: 'idle',
-        validationError: null,
-      };
-    });
+    setApiKeyStatusByProvider(provider, (prev) => ({
+      ...prev,
+      validationStatus: 'idle',
+      validationError: null,
+    }));
   }, [setApiKeyStatusByProvider]);
 
   const checkInstallStatus = useCallback(async () => {
