@@ -108,7 +108,7 @@ export default function StepReview({
         </div>
       </div>
 
-      {taskmasterInstalled && !taskmasterInit && (
+      {!taskmasterInit && (taskmasterInstalled ? (
         <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50">
           <input
             type="checkbox"
@@ -133,7 +133,23 @@ export default function StepReview({
             </div>
           </div>
         </label>
-      )}
+      ) : (
+        <div className="flex items-start gap-3 rounded-lg border border-dashed border-gray-300 p-4 dark:border-gray-600">
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
+            <ListChecks className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+          </div>
+          <div>
+            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              {t('projectWizard.step3.taskmasterNotInstalled', { defaultValue: 'TaskMaster not installed' })}
+            </span>
+            <p className="mt-0.5 text-xs text-gray-400 dark:text-gray-500">
+              {t('projectWizard.step3.taskmasterNotInstalledHelp', {
+                defaultValue: 'To enable task management, install TaskMaster from the Settings page under CLI Tools.',
+              })}
+            </p>
+          </div>
+        </div>
+      ))}
 
       {taskmasterInit ? (
         <TaskmasterInitPanel
