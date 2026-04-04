@@ -59,6 +59,17 @@ const CLIENT_REGISTRY = {
     uninstallScript: 'codex/uninstall.sh',
     timeout: 180_000,
   },
+  taskmaster: {
+    name: 'TaskMaster AI',
+    detectPaths: () => [
+      '/usr/local/bin/task-master',
+      '/usr/bin/task-master',
+    ],
+    versionArgs: ['--version'],
+    installScript: 'taskmaster/install.sh',
+    uninstallScript: 'taskmaster/uninstall.sh',
+    timeout: 180_000,
+  },
 };
 
 // Map provider id → environment variable name for API key and validation config.

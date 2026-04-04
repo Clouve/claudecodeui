@@ -55,7 +55,6 @@ export default function NextTaskBanner({ onShowAllTasks = null, onStartTask = nu
     projectTaskMaster,
     refreshTasks,
     refreshProjects,
-    setCurrentProject,
   } = useTaskMaster();
 
   const [showTaskDetail, setShowTaskDetail] = useState(false);
@@ -69,9 +68,8 @@ export default function NextTaskBanner({ onShowAllTasks = null, onStartTask = nu
   const hasTasks = Array.isArray(tasks) && tasks.length > 0;
   const hasTaskMaster = Boolean(projectTaskMaster?.hasTaskmaster || currentProject.taskmaster?.hasTaskmaster);
 
-  const handleSetupRefresh = () => {
-    void refreshProjects();
-    setCurrentProject(currentProject);
+  const handleSetupRefresh = async () => {
+    await refreshProjects();
     void refreshTasks();
   };
 

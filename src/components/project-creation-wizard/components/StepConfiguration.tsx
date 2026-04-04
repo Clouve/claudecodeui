@@ -6,7 +6,7 @@ import GithubAuthenticationCard from './GithubAuthenticationCard';
 import WorkspacePathField from './WorkspacePathField';
 
 type StepConfigurationProps = {
-  workspaceType: WorkspaceType;
+  workspaceType: WorkspaceType | null;
   workspacePath: string;
   githubUrl: string;
   tokenMode: TokenMode;

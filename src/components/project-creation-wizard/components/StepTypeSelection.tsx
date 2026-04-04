@@ -3,13 +3,13 @@ import { useTranslation } from 'react-i18next';
 import type { WorkspaceType } from '../types';
 
 type StepTypeSelectionProps = {
-  workspaceType: WorkspaceType;
-  onWorkspaceTypeChange: (workspaceType: WorkspaceType) => void;
+  workspaceType: WorkspaceType | null;
+  onSelect: (workspaceType: WorkspaceType) => void;
 };
 
 export default function StepTypeSelection({
   workspaceType,
-  onWorkspaceTypeChange,
+  onSelect,
 }: StepTypeSelectionProps) {
   const { t } = useTranslation();
 
@@ -21,7 +21,7 @@ export default function StepTypeSelection({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <button
-          onClick={() => onWorkspaceTypeChange('existing')}
+          onClick={() => onSelect('existing')}
           className={`rounded-lg border-2 p-4 text-left transition-all ${
             workspaceType === 'existing'
               ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
@@ -44,7 +44,7 @@ export default function StepTypeSelection({
         </button>
 
         <button
-          onClick={() => onWorkspaceTypeChange('new')}
+          onClick={() => onSelect('new')}
           className={`rounded-lg border-2 p-4 text-left transition-all ${
             workspaceType === 'new'
               ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'

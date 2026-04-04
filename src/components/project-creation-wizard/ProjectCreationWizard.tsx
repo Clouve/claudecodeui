@@ -1,6 +1,7 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FolderPlus, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTaskmasterInit } from '../task-master/hooks/useTaskmasterInit';
 import ErrorBanner from './components/ErrorBanner';
 import StepConfiguration from './components/StepConfiguration';
 import StepReview from './components/StepReview';
@@ -8,7 +9,7 @@ import StepTypeSelection from './components/StepTypeSelection';
 import WizardFooter from './components/WizardFooter';
 import WizardProgress from './components/WizardProgress';
 import { useGithubTokens } from './hooks/useGithubTokens';
-import { cloneWorkspaceWithProgress, createWorkspaceRequest } from './data/workspaceApi';
+import { browseFilesystemFolders, cloneWorkspaceWithProgress, createWorkspaceRequest } from './data/workspaceApi';
 import { isCloneWorkflow, shouldShowGithubAuthentication } from './utils/pathUtils';
 import type { TokenMode, WizardFormState, WizardStep, WorkspaceType } from './types';
 
@@ -18,12 +19,13 @@ type ProjectCreationWizardProps = {
 };
 
 const initialFormState: WizardFormState = {
-  workspaceType: 'existing',
+  workspaceType: null,
   workspacePath: '',
   githubUrl: '',
   tokenMode: 'stored',
   selectedGithubToken: '',
   newGithubToken: '',
+  initializeTaskmaster: false,
 };
 
 export default function ProjectCreationWizard({
@@ -36,6 +38,31 @@ export default function ProjectCreationWizard({
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cloneProgress, setCloneProgress] = useState('');
+  const [taskmasterProjectName, setTaskmasterProjectName] = useState<string | null>(null);
+
+  const taskmasterInit = useTaskmasterInit({
+    projectName: taskmasterProjectName ?? undefined,
+    onSuccess: undefined,
+  });
+
+  useEffect(() => {
+    if (taskmasterProjectName) {
+      taskmasterInit.runInit();
+    }
+    // Only trigger when projectName is set, not on every runInit reference change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [taskmasterProjectName]);
+
+  useEffect(() => {
+    browseFilesystemFolders('').then(({ path }) => {
+      setFormState((previous) => {
+        if (previous.workspacePath) return previous;
+        return { ...previous, workspacePath: path };
+      });
+    }).catch(() => {
+      // Ignore – the field will remain empty and the user can type a path manually.
+    });
+  }, []);
 
   const shouldLoadTokens =
     step === 2 && shouldShowGithubAuthentication(formState.workspaceType, formState.githubUrl);
@@ -60,8 +87,12 @@ export default function ProjectCreationWizard({
     setFormState((previous) => ({ ...previous, [key]: value }));
   }, []);
 
-  const updateWorkspaceType = useCallback(
-    (workspaceType: WorkspaceType) => updateField('workspaceType', workspaceType),
+  const selectWorkspaceTypeAndAdvance = useCallback(
+    (workspaceType: WorkspaceType) => {
+      updateField('workspaceType', workspaceType);
+      setError(null);
+      setStep(2);
+    },
     [updateField],
   );
 
@@ -73,15 +104,6 @@ export default function ProjectCreationWizard({
   const handleNext = useCallback(() => {
     setError(null);
 
-    if (step === 1) {
-      if (!formState.workspaceType) {
-        setError(t('projectWizard.errors.selectType'));
-        return;
-      }
-      setStep(2);
-      return;
-    }
-
     if (step === 2) {
       if (!formState.workspacePath.trim()) {
         setError(t('projectWizard.errors.providePath'));
@@ -89,12 +111,24 @@ export default function ProjectCreationWizard({
       }
       setStep(3);
     }
-  }, [formState.workspacePath, formState.workspaceType, step, t]);
+  }, [formState.workspacePath, step, t]);
 
   const handleBack = useCallback(() => {
     setError(null);
     setStep((previousStep) => (previousStep > 1 ? ((previousStep - 1) as WizardStep) : previousStep));
   }, []);
+
+  const finishWithProject = useCallback(
+    (project: Record<string, unknown> | undefined) => {
+      onProjectCreated?.(project);
+      if (formState.initializeTaskmaster && project && typeof project.name === 'string') {
+        setTaskmasterProjectName(project.name);
+      } else {
+        onClose();
+      }
+    },
+    [formState.initializeTaskmaster, onClose, onProjectCreated],
+  );
 
   const handleCreate = useCallback(async () => {
     setIsCreating(true);
@@ -118,18 +152,16 @@ export default function ProjectCreationWizard({
           },
         );
 
-        onProjectCreated?.(project);
-        onClose();
+        finishWithProject(project);
         return;
       }
 
       const project = await createWorkspaceRequest({
-        workspaceType: formState.workspaceType,
+        workspaceType: formState.workspaceType!,
         path: formState.workspacePath.trim(),
       });
 
-      onProjectCreated?.(project);
-      onClose();
+      finishWithProject(project);
     } catch (createError) {
       const errorMessage =
         createError instanceof Error
@@ -139,7 +171,7 @@ export default function ProjectCreationWizard({
     } finally {
       setIsCreating(false);
     }
-  }, [formState, onClose, onProjectCreated, t]);
+  }, [formState, finishWithProject, t]);
 
   const shouldCloneRepository = useMemo(
     () => isCloneWorkflow(formState.workspaceType, formState.githubUrl),
@@ -175,7 +207,7 @@ export default function ProjectCreationWizard({
           {step === 1 && (
             <StepTypeSelection
               workspaceType={formState.workspaceType}
-              onWorkspaceTypeChange={updateWorkspaceType}
+              onSelect={selectWorkspaceTypeAndAdvance}
             />
           )}
 
@@ -210,19 +242,32 @@ export default function ProjectCreationWizard({
               selectedTokenName={selectedTokenName}
               isCreating={isCreating}
               cloneProgress={cloneProgress}
+              onInitializeTaskmasterChange={(value) => updateField('initializeTaskmaster', value)}
+              onClose={onClose}
+              taskmasterInit={taskmasterProjectName ? {
+                status: taskmasterInit.status,
+                log: taskmasterInit.log,
+                error: taskmasterInit.error,
+                showLog: taskmasterInit.showLog,
+                onToggleLog: () => taskmasterInit.setShowLog((v) => !v),
+                onRunInit: taskmasterInit.runInit,
+                projectDisplayName: taskmasterProjectName,
+              } : null}
             />
           )}
         </div>
 
-        <WizardFooter
-          step={step}
-          isCreating={isCreating}
-          isCloneWorkflow={shouldCloneRepository}
-          onClose={onClose}
-          onBack={handleBack}
-          onNext={handleNext}
-          onCreate={handleCreate}
-        />
+        {!taskmasterProjectName && (
+          <WizardFooter
+            step={step}
+            isCreating={isCreating}
+            isCloneWorkflow={shouldCloneRepository}
+            onClose={onClose}
+            onBack={handleBack}
+            onNext={handleNext}
+            onCreate={handleCreate}
+          />
+        )}
       </div>
     </div>
   );
