@@ -69,6 +69,10 @@ export function useTaskmasterInit({ projectName, onSuccess }: UseTaskmasterInitO
       if (data.success) {
         setStatus('success');
         await onSuccess?.();
+        // Full page reload to refresh all state after taskmaster init.
+        // Use assign() with the current href to avoid BASE_PATH trailing-slash issues.
+        const href = window.location.href;
+        window.location.assign(href.endsWith('/') ? href : href + '/');
       } else {
         setStatus('error');
         setError(data.message || 'Initialization failed');
