@@ -1,7 +1,7 @@
 # =============================================================================
-# CloudCLI UI — Development Image
+# AI Workstation — Development Image
 # =============================================================================
-# Multi-stage build that produces a lightweight image with the CloudCLI web UI.
+# Multi-stage build that produces a lightweight image with the AI Workstation web UI.
 # AI clients are NOT pre-installed — they are installed on-demand from the
 # Settings screen, keeping the image small and giving users control over which
 # clients to install.
@@ -13,7 +13,7 @@
 #   - Cursor CLI      (official installer)
 #
 # Build (from repo root):
-#   docker build -f dev/Dockerfile -t cloudcli-dev .
+#   docker build -f dev/Dockerfile -t ai-workstation-dev .
 #
 # Run:
 #   docker run -it --rm \
@@ -22,12 +22,12 @@
 #     -e OPENAI_API_KEY=sk-... \
 #     -e CURSOR_API_KEY=... \
 #     -p 8080:8080 \
-#     cloudcli-dev
+#     ai-workstation-dev
 #
 # Tip: add a .dockerignore at the repo root with "node_modules" and ".git"
 #      to speed up builds by keeping the build context small.
 
-# ── Stage 1: Build CloudCLI web UI ──────────────────────────────────────────
+# ── Stage 1: Build AI Workstation web UI ──────────────────────────────────────────
 FROM node:22-slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -51,8 +51,8 @@ RUN printf 'SERVER_PORT=8080\nHOST=0.0.0.0\n' > .env \
 # ── Stage 2: Runtime (AI clients installed on-demand via Settings UI) ───────
 FROM ubuntu:24.04
 
-LABEL maintainer="CloudCLI Contributors"
-LABEL description="CloudCLI UI — AI clients installed on-demand from Settings"
+LABEL maintainer="AI Workstation Contributors"
+LABEL description="AI Workstation — AI clients installed on-demand from Settings"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -81,36 +81,36 @@ ARG USERNAME=dev
 RUN useradd -m -s /bin/bash ${USERNAME} \
     && echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# Copy built app from Stage 1 and runtime entrypoint (kept outside /opt/cloudcli
+# Copy built app from Stage 1 and runtime entrypoint (kept outside /opt/ai-workstation
 # so a dev-mode volume mount over the app directory does not mask it).
-COPY --from=builder /app /opt/cloudcli
-COPY dev/entrypoint.sh /usr/local/bin/cloudcli-entrypoint.sh
+COPY --from=builder /app /opt/ai-workstation
+COPY dev/entrypoint.sh /usr/local/bin/ai-workstation-entrypoint.sh
 
 # Make scripts executable and hand ownership to the app user.
-RUN chmod +x /opt/cloudcli/server/installers/*/*.sh 2>/dev/null || true \
-    && chmod +x /usr/local/bin/cloudcli-entrypoint.sh \
-    && chown -R ${USERNAME}:${USERNAME} /opt/cloudcli
+RUN chmod +x /opt/ai-workstation/server/installers/*/*.sh 2>/dev/null || true \
+    && chmod +x /usr/local/bin/ai-workstation-entrypoint.sh \
+    && chown -R ${USERNAME}:${USERNAME} /opt/ai-workstation
 
 # ── Volume seeding: snapshot directories that will be mounted as volumes ────
 # Place the static busybox binary outside /usr so the bootstrap entrypoint
 # (init.sh) remains executable even when /usr is mounted as an empty volume.
 # Seed tarballs capture the fully-configured image state; init.sh extracts
 # them on first start and writes a sentinel to skip extraction on restarts.
-COPY dev/init.sh /cloudcli-seed/init.sh
-RUN cp /usr/bin/busybox /cloudcli-seed/busybox \
-    && chmod +x /cloudcli-seed/init.sh \
-    && tar czf /cloudcli-seed/home-seed.tar.gz -C / home \
-    && tar czf /cloudcli-seed/usr-seed.tar.gz -C / usr \
-    && tar czf /cloudcli-seed/var-seed.tar.gz -C / \
+COPY dev/init.sh /ai-workstation-seed/init.sh
+RUN cp /usr/bin/busybox /ai-workstation-seed/busybox \
+    && chmod +x /ai-workstation-seed/init.sh \
+    && tar czf /ai-workstation-seed/home-seed.tar.gz -C / home \
+    && tar czf /ai-workstation-seed/usr-seed.tar.gz -C / usr \
+    && tar czf /ai-workstation-seed/var-seed.tar.gz -C / \
         --exclude=var/run \
         --exclude=var/lock \
         var
 
-WORKDIR /opt/cloudcli
+WORKDIR /opt/ai-workstation
 
 ENV PATH="/home/${USERNAME}/.local/bin:/usr/local/bin:${PATH}"
 
 EXPOSE 5173 8080
 
-ENTRYPOINT ["/cloudcli-seed/busybox", "sh", "/cloudcli-seed/init.sh"]
+ENTRYPOINT ["/ai-workstation-seed/busybox", "sh", "/ai-workstation-seed/init.sh"]
 CMD ["node", "server/index.js"]

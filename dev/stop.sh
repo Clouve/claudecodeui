@@ -11,8 +11,8 @@ set -eo pipefail
 #                 home, usr, var). This resets the container to a fresh state —
 #                 any AI clients installed at runtime will need to be reinstalled.
 
-CONTAINER_NAME="cloudcli-dev"
-VOLUMES="cloudcli-node-modules cloudcli-home cloudcli-usr cloudcli-var"
+CONTAINER_NAME="ai-workstation-dev"
+VOLUMES="ai-workstation-node-modules ai-workstation-home ai-workstation-usr ai-workstation-var"
 
 CLEAN=false
 for arg in "$@"; do

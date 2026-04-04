@@ -2,7 +2,7 @@
 set -e
 
 # =============================================================================
-# CloudCLI UI — Container Entrypoint
+# AI Workstation — Container Entrypoint
 # =============================================================================
 # Runs as root after volume seeding (init.sh). Re-applies apt service-start
 # guards (since /usr is a named volume), handles runtime API-key auth, then
@@ -17,7 +17,7 @@ set -e
 #   GEMINI_API_KEY     — picked up automatically by Gemini CLI
 #   OPENAI_API_KEY     — used below to authenticate Codex CLI
 #   CURSOR_API_KEY     — picked up automatically by Cursor CLI
-#   SERVER_PORT        — CloudCLI server port (default: 8080)
+#   SERVER_PORT        — AI Workstation server port (default: 8080)
 
 # ── Re-apply apt-get service-start guards ──────────────────────────────────
 # /usr is a named volume — these files must be rewritten on every start to

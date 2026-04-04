@@ -18,14 +18,14 @@ set -eo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
-CONTAINER_NAME="cloudcli-dev"
-IMAGE_NAME="cloudcli-dev"
+CONTAINER_NAME="ai-workstation-dev"
+IMAGE_NAME="ai-workstation-dev"
 
 # Named volumes for directories seeded by init.sh. These persist AI clients
 # installed at runtime (via Settings > Agents) across container restarts.
-VOLUME_HOME="cloudcli-home"
-VOLUME_USR="cloudcli-usr"
-VOLUME_VAR="cloudcli-var"
+VOLUME_HOME="ai-workstation-home"
+VOLUME_USR="ai-workstation-usr"
+VOLUME_VAR="ai-workstation-var"
 
 # ── Parse mode argument ─────────────────────────────────────────────────────
 MODE="dev"
@@ -66,8 +66,8 @@ if [ "$MODE" = "dev" ]; then
     docker run -d \
         --name "$CONTAINER_NAME" \
         -p "$PORT:5173" \
-        -v "$REPO_ROOT:/opt/cloudcli" \
-        -v cloudcli-node-modules:/opt/cloudcli/node_modules \
+        -v "$REPO_ROOT:/opt/ai-workstation" \
+        -v ai-workstation-node-modules:/opt/ai-workstation/node_modules \
         -v "$VOLUME_HOME:/home" \
         -v "$VOLUME_USR:/usr" \
         -v "$VOLUME_VAR:/var" \

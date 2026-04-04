@@ -9,7 +9,7 @@ set -eo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
-IMAGE_NAME="cloudcli-dev"
+IMAGE_NAME="ai-workstation-dev"
 
 cd "$REPO_ROOT"
 
