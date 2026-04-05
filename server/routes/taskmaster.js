@@ -343,6 +343,34 @@ router.get('/detect/:projectName', async (req, res) => {
 });
 
 /**
+ * GET /api/taskmaster/check-initialized?path=<dir>
+ * Check if TaskMaster is already initialized at a given directory path.
+ * Used by the project creation wizard to detect pre-existing initialization
+ * before the project is registered.
+ */
+router.get('/check-initialized', async (req, res) => {
+    try {
+        const dirPath = req.query.path;
+        if (!dirPath || typeof dirPath !== 'string') {
+            return res.status(400).json({ initialized: false, error: 'Missing path query parameter' });
+        }
+
+        const resolved = path.resolve(dirPath);
+        const taskMasterPath = path.join(resolved, '.taskmaster');
+
+        try {
+            const stats = await fsPromises.stat(taskMasterPath);
+            return res.json({ initialized: stats.isDirectory() });
+        } catch {
+            return res.json({ initialized: false });
+        }
+    } catch (error) {
+        console.error('TaskMaster check-initialized error:', error);
+        res.status(500).json({ initialized: false, error: error.message });
+    }
+});
+
+/**
  * GET /api/taskmaster/detect-all
  * Detect TaskMaster configuration for all known projects
  * This endpoint works with the existing projects system

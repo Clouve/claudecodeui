@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ListChecks } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTasksSettings } from '../../../contexts/TasksSettingsContext';
 import type { TaskmasterInitStatus } from '../../task-master/hooks/useTaskmasterInit';
 import TaskmasterInitPanel from '../../task-master/view/TaskmasterInitPanel';
-import { checkTaskmasterInstalled } from '../data/workspaceApi';
+import { checkTaskmasterInitializedAtPath } from '../data/workspaceApi';
 import { isSshGitUrl } from '../utils/pathUtils';
 import type { WizardFormState } from '../types';
 
@@ -54,11 +55,23 @@ export default function StepReview({
     return t('projectWizard.step3.noAuthentication');
   }, [formState, selectedTokenName, t]);
 
-  const [taskmasterInstalled, setTaskmasterInstalled] = useState(false);
+  const { isTaskMasterInstalled } = useTasksSettings();
+  const taskmasterInstalled = Boolean(isTaskMasterInstalled);
+  const [taskmasterAlreadyInitialized, setTaskmasterAlreadyInitialized] = useState(false);
 
   useEffect(() => {
-    checkTaskmasterInstalled().then(setTaskmasterInstalled);
-  }, []);
+    const dir = formState.workspacePath?.trim();
+    if (!dir) {
+      setTaskmasterAlreadyInitialized(false);
+      return;
+    }
+    checkTaskmasterInitializedAtPath(dir).then((initialized) => {
+      setTaskmasterAlreadyInitialized(initialized);
+      if (initialized) {
+        onInitializeTaskmasterChange(false);
+      }
+    });
+  }, [formState.workspacePath, onInitializeTaskmasterChange]);
 
   return (
     <div className="space-y-4">
@@ -108,7 +121,25 @@ export default function StepReview({
         </div>
       </div>
 
-      {!taskmasterInit && (taskmasterInstalled ? (
+      {!taskmasterInit && (taskmasterAlreadyInitialized ? (
+        <div className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/50">
+            <ListChecks className="h-4 w-4 text-green-600 dark:text-green-400" />
+          </div>
+          <div>
+            <span className="text-sm font-medium text-green-800 dark:text-green-200">
+              {t('projectWizard.step3.taskmasterAlreadyInitialized', {
+                defaultValue: 'TaskMaster is already initialized in this directory',
+              })}
+            </span>
+            <p className="mt-0.5 text-xs text-green-600 dark:text-green-400">
+              {t('projectWizard.step3.taskmasterAlreadyInitializedHelp', {
+                defaultValue: 'This workspace already has a .taskmaster configuration. No additional setup is needed.',
+              })}
+            </p>
+          </div>
+        </div>
+      ) : taskmasterInstalled ? (
         <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50">
           <input
             type="checkbox"

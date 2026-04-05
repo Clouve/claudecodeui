@@ -149,12 +149,14 @@ export const cloneWorkspaceWithProgress = (
     };
   });
 
-export const checkTaskmasterInstalled = async (): Promise<boolean> => {
+export const checkTaskmasterInitializedAtPath = async (dirPath: string): Promise<boolean> => {
   try {
-    const response = await authenticatedFetch('/api/cli-installer/taskmaster/status');
+    const response = await authenticatedFetch(
+      `/api/taskmaster/check-initialized?path=${encodeURIComponent(dirPath)}`,
+    );
     if (!response.ok) return false;
     const data = await response.json();
-    return Boolean(data.installed);
+    return Boolean(data.initialized);
   } catch {
     return false;
   }
