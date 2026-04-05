@@ -34,9 +34,16 @@ export default function AgentCategoryContentSection({
     <div className="flex-1 overflow-y-auto p-3 md:p-4">
       {selectedCategory === 'account' && (
         <AccountContent
+          key={selectedAgent}
           agent={selectedAgent}
           authStatus={agentContextById[selectedAgent].authStatus}
+          installStatus={agentContextById[selectedAgent].installStatus}
+          apiKeyStatus={agentContextById[selectedAgent].apiKeyStatus}
           onLogin={agentContextById[selectedAgent].onLogin}
+          onInstall={agentContextById[selectedAgent].onInstall}
+          onUninstall={agentContextById[selectedAgent].onUninstall}
+          onValidateApiKey={agentContextById[selectedAgent].onValidateApiKey}
+          onResetApiKeyValidation={agentContextById[selectedAgent].onResetApiKeyValidation}
         />
       )}
 

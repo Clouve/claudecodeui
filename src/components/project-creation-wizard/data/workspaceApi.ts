@@ -1,4 +1,4 @@
-import { api, BASE_PATH } from '../../../utils/api';
+import { api, authenticatedFetch, BASE_PATH } from '../../../utils/api';
 import type {
   BrowseFilesystemResponse,
   CloneProgressEvent,
@@ -148,3 +148,14 @@ export const cloneWorkspaceWithProgress = (
       settle(() => reject(new Error('Connection lost during clone')));
     };
   });
+
+export const checkTaskmasterInstalled = async (): Promise<boolean> => {
+  try {
+    const response = await authenticatedFetch('/api/cli-installer/taskmaster/status');
+    if (!response.ok) return false;
+    const data = await response.json();
+    return Boolean(data.installed);
+  } catch {
+    return false;
+  }
+};

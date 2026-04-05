@@ -9,11 +9,11 @@ export const isSshGitUrl = (url: string): boolean => {
 };
 
 export const shouldShowGithubAuthentication = (
-  workspaceType: WorkspaceType,
+  workspaceType: WorkspaceType | null,
   githubUrl: string,
 ): boolean => workspaceType === 'new' && githubUrl.trim().length > 0 && !isSshGitUrl(githubUrl);
 
-export const isCloneWorkflow = (workspaceType: WorkspaceType, githubUrl: string): boolean =>
+export const isCloneWorkflow = (workspaceType: WorkspaceType | null, githubUrl: string): boolean =>
   workspaceType === 'new' && githubUrl.trim().length > 0;
 
 export const getSuggestionRootPath = (inputPath: string): string => {

@@ -336,6 +336,23 @@
       }
     },
     "connectionStatus": "连接状态",
+    "installStatus": "安装状态",
+    "install": {
+      "installed": "已安装",
+      "notInstalled": "未安装",
+      "installing": "安装中...",
+      "uninstalling": "卸载中...",
+      "version": "版本：{{version}}",
+      "installButton": "安装",
+      "uninstallButton": "卸载",
+      "reinstallButton": "重新安装",
+      "installDescription": "安装 {{agent}} 以将其用作 AI 编程助手",
+      "installedDescription": "{{agent}} 已准备就绪",
+      "showLog": "显示日志",
+      "hideLog": "隐藏日志",
+      "waitingForLog": "安装中 — 等待输出…",
+      "uninstallWaitingForLog": "卸载中 — 等待输出…"
+    },
     "login": {
       "title": "登录",
       "reAuthenticate": "重新认证",
@@ -343,6 +360,35 @@
       "reAuthDescription": "使用其他账户登录或刷新凭据",
       "button": "登录",
       "reLoginButton": "重新登录"
+    },
+    "apiKey": {
+      "title": "API 密钥",
+      "description": "输入您的 {{agent}} API 密钥以启用安装",
+      "setViaEnv": "已保存",
+      "validated": "API 密钥验证成功",
+      "cursorNote": "输入您的 Cursor API 密钥 — 认证将在安装后验证",
+      "cursorSaved": "API 密钥已保存 — 将在安装后验证",
+      "validating": "验证中...",
+      "saving": "保存中...",
+      "valid": "有效",
+      "saved": "已保存",
+      "saveButton": "保存",
+      "invalid": "无效",
+      "notSet": "未设置",
+      "placeholder": "输入 {{agent}} API 密钥...",
+      "validateButton": "验证",
+      "updateButton": "更新密钥",
+      "updateHint": "在上方输入新密钥以更新您的 API 凭据",
+      "validateFirst": "安装前需要有效的 API 密钥",
+      "envLabel": "通过环境变量设置 — 无法在此编辑",
+      "getKey": "获取密钥"
+    },
+    "unified": {
+      "notSetUp": "未设置",
+      "ready": "准备安装",
+      "validateAndInstall": "验证并安装",
+      "saveAndInstall": "保存并安装",
+      "settingUp": "设置中…"
     },
     "error": "错误：{{error}}"
   },
@@ -458,7 +504,7 @@
   },
   "pluginSettings": {
     "title": "插件",
-    "description": "通过自定义插件扩展界面。从 git 安装或直接将文件夹放入 ~/.claude-code-ui/plugins/",
+    "description": "通过自定义插件扩展界面。从 git 安装或直接将文件夹放入 ~/.ai-workspace/plugins/",
     "installPlaceholder": "https://github.com/user/my-plugin",
     "installButton": "安装",
     "installing": "安装中…",
@@ -476,13 +522,19 @@
     "installFailed": "安装失败",
     "uninstallFailed": "卸载失败",
     "toggleFailed": "切换失败",
-    "buildYourOwn": "构建您自己的插件",
+    "starterPluginLabel": "入门插件",
     "starter": "入门模板",
     "docs": "文档",
     "starterPlugin": {
       "name": "项目统计",
       "badge": "入门",
       "description": "查看项目的文件数、代码行数、文件类型分布以及最近活动。",
+      "install": "安装"
+    },
+    "terminalPlugin": {
+      "name": "终端",
+      "badge": "官方",
+      "description": "在界面中直接集成的终端，提供完整的 Shell 访问权限。",
       "install": "安装"
     },
     "morePlugins": "更多",

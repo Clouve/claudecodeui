@@ -964,22 +964,37 @@ router.delete('/prd/:projectName/:fileName', async (req, res) => {
     }
 });
 
+/** Broadcast a message to all connected WebSocket clients. */
+function broadcast(wss, message) {
+    if (!wss) return;
+    const payload = JSON.stringify(message);
+    wss.clients.forEach((client) => {
+        if (client.readyState === 1 /* WebSocket.OPEN */) {
+            try { client.send(payload); } catch { /* ignore */ }
+        }
+    });
+}
+
 /**
  * POST /api/taskmaster/init/:projectName
- * Initialize TaskMaster in a project
+ * Initialize TaskMaster in a project.
+ * Streams real-time log lines via WebSocket (type: 'taskmaster_init_log')
+ * and returns { success, message, log } consistent with the cli-installer pattern.
  */
 router.post('/init/:projectName', async (req, res) => {
     try {
         const { projectName } = req.params;
-        
+
         // Get project path
         let projectPath;
         try {
             projectPath = await extractProjectDirectory(projectName);
         } catch (error) {
             return res.status(404).json({
+                success: false,
                 error: 'Project not found',
-                message: `Project "${projectName}" does not exist`
+                message: `Project "${projectName}" does not exist`,
+                log: []
             });
         }
 
@@ -988,67 +1003,94 @@ router.post('/init/:projectName', async (req, res) => {
         try {
             await fsPromises.access(taskMasterPath, fs.constants.F_OK);
             return res.status(400).json({
+                success: false,
                 error: 'TaskMaster already initialized',
-                message: 'TaskMaster is already configured for this project'
+                message: 'TaskMaster is already configured for this project',
+                log: []
             });
         } catch (error) {
             // Directory doesn't exist, we can proceed
         }
 
-        // Run taskmaster init command
-        const initProcess = spawn('npx', ['task-master', 'init'], {
+        const wss = req.app.locals.wss;
+        const log = [];
+
+        const pushLine = (line) => {
+            log.push(line);
+            broadcast(wss, { type: 'taskmaster_init_log', projectName, line });
+        };
+
+        // Run taskmaster init command with -y to skip interactive prompts.
+        // Use task-master directly (globally installed) rather than npx.
+        const initProcess = spawn('task-master', ['init', '-y'], {
             cwd: projectPath,
-            stdio: ['pipe', 'pipe', 'pipe']
+            stdio: ['ignore', 'pipe', 'pipe'],
+            env: { ...process.env, PATH: `${os.homedir()}/.local/bin:/usr/local/bin:${process.env.PATH}` },
         });
 
-        let stdout = '';
-        let stderr = '';
-
         initProcess.stdout.on('data', (data) => {
-            stdout += data.toString();
+            for (const line of data.toString().split('\n').filter(Boolean)) {
+                pushLine(line);
+            }
         });
 
         initProcess.stderr.on('data', (data) => {
-            stderr += data.toString();
+            for (const line of data.toString().split('\n').filter(Boolean)) {
+                pushLine(line);
+            }
         });
 
+        const timeout = setTimeout(() => {
+            initProcess.kill('SIGTERM');
+        }, 120_000);
+
         initProcess.on('close', (code) => {
+            clearTimeout(timeout);
+
             if (code === 0) {
                 // Broadcast TaskMaster project update via WebSocket
-                if (req.app.locals.wss) {
-                    broadcastTaskMasterProjectUpdate(
-                        req.app.locals.wss, 
-                        projectName, 
-                        { hasTaskmaster: true, status: 'initialized' }
-                    );
-                }
+                broadcastTaskMasterProjectUpdate(
+                    wss,
+                    projectName,
+                    { hasTaskmaster: true, status: 'initialized' }
+                );
 
                 res.json({
+                    success: true,
                     projectName,
                     projectPath,
                     message: 'TaskMaster initialized successfully',
-                    output: stdout,
+                    log,
                     timestamp: new Date().toISOString()
                 });
             } else {
-                console.error('TaskMaster init failed:', stderr);
-                res.status(500).json({
-                    error: 'Failed to initialize TaskMaster',
-                    message: stderr || stdout,
-                    code
+                console.error('TaskMaster init failed:', log.join('\n'));
+                res.json({
+                    success: false,
+                    projectName,
+                    message: `TaskMaster init failed (exit code ${code})`,
+                    log
                 });
             }
         });
 
-        // Send 'yes' responses to automated prompts
-        initProcess.stdin.write('yes\n');
-        initProcess.stdin.end();
+        initProcess.on('error', (error) => {
+            clearTimeout(timeout);
+            res.json({
+                success: false,
+                projectName,
+                message: `Failed to start: ${error.message}`,
+                log
+            });
+        });
 
     } catch (error) {
         console.error('TaskMaster init error:', error);
         res.status(500).json({
+            success: false,
             error: 'Failed to initialize TaskMaster',
-            message: error.message
+            message: error.message,
+            log: []
         });
     }
 });

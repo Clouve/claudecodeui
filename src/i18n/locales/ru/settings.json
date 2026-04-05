@@ -105,7 +105,27 @@
     "git": "Git",
     "apiTokens": "API и токены",
     "tasks": "Задачи",
+    "notifications": "Уведомления",
     "plugins": "Плагины"
+  },
+  "notifications": {
+    "title": "Уведомления",
+    "description": "Управление типами получаемых уведомлений.",
+    "webPush": {
+      "title": "Web Push уведомления",
+      "enable": "Включить push-уведомления",
+      "disable": "Отключить push-уведомления",
+      "enabled": "Push-уведомления включены",
+      "loading": "Обновление...",
+      "unsupported": "Push-уведомления не поддерживаются в этом браузере.",
+      "denied": "Push-уведомления заблокированы. Пожалуйста, разрешите их в настройках браузера."
+    },
+    "events": {
+      "title": "Типы событий",
+      "actionRequired": "Требуется действие",
+      "stop": "Выполнение остановлено",
+      "error": "Ошибка выполнения"
+    }
   },
   "appearanceSettings": {
     "darkMode": {
@@ -315,6 +335,23 @@
       }
     },
     "connectionStatus": "Статус подключения",
+    "installStatus": "Установка",
+    "install": {
+      "installed": "Установлен",
+      "notInstalled": "Не установлен",
+      "installing": "Установка...",
+      "uninstalling": "Удаление...",
+      "version": "Версия: {{version}}",
+      "installButton": "Установить",
+      "uninstallButton": "Удалить",
+      "reinstallButton": "Переустановить",
+      "installDescription": "Установите {{agent}}, чтобы использовать его как AI помощника для программирования",
+      "installedDescription": "{{agent}} готов к использованию",
+      "showLog": "Показать журнал",
+      "hideLog": "Скрыть журнал",
+      "waitingForLog": "Установка — ожидание вывода…",
+      "uninstallWaitingForLog": "Удаление — ожидание вывода…"
+    },
     "login": {
       "title": "Вход",
       "reAuthenticate": "Повторная аутентификация",
@@ -322,6 +359,35 @@
       "reAuthDescription": "Войдите с другим аккаунтом или обновите учетные данные",
       "button": "Войти",
       "reLoginButton": "Войти снова"
+    },
+    "apiKey": {
+      "title": "API ключ",
+      "description": "Введите ваш API ключ для {{agent}}, чтобы разрешить установку",
+      "setViaEnv": "Сохранён",
+      "validated": "API ключ успешно проверен",
+      "cursorNote": "Введите ваш API ключ Cursor — аутентификация будет проверена после установки",
+      "cursorSaved": "API ключ сохранён — будет проверен после установки",
+      "validating": "Проверка...",
+      "saving": "Сохранение...",
+      "valid": "Действителен",
+      "saved": "Сохранён",
+      "saveButton": "Сохранить",
+      "invalid": "Недействителен",
+      "notSet": "Не задан",
+      "placeholder": "Введите API ключ {{agent}}...",
+      "validateButton": "Проверить",
+      "updateButton": "Обновить ключ",
+      "updateHint": "Введите новый ключ выше для обновления ваших API учетных данных",
+      "validateFirst": "Для установки необходим действительный API ключ",
+      "envLabel": "Задан через переменную окружения — невозможно изменить здесь",
+      "getKey": "Получить ключ"
+    },
+    "unified": {
+      "notSetUp": "Не настроен",
+      "ready": "Готов к установке",
+      "validateAndInstall": "Проверить и установить",
+      "saveAndInstall": "Сохранить и установить",
+      "settingUp": "Настройка…"
     },
     "error": "Ошибка: {{error}}"
   },
@@ -437,7 +503,7 @@
   },
   "pluginSettings": {
     "title": "Плагины",
-    "description": "Расширяйте интерфейс с помощью кастомных плагинов. Установите из git или добавьте папку в ~/.claude-code-ui/plugins/",
+    "description": "Расширяйте интерфейс с помощью кастомных плагинов. Установите из git или добавьте папку в ~/.ai-workspace/plugins/",
     "installPlaceholder": "https://github.com/user/my-plugin",
     "installButton": "Установить",
     "installing": "Установка…",
@@ -455,13 +521,19 @@
     "installFailed": "Ошибка установки",
     "uninstallFailed": "Ошибка удаления",
     "toggleFailed": "Ошибка переключения",
-    "buildYourOwn": "Создайте свой плагин",
+    "starterPluginLabel": "Стартовый плагин",
     "starter": "Шаблон",
     "docs": "Документация",
     "starterPlugin": {
       "name": "Статистика проекта",
       "badge": "шаблон",
       "description": "Количество файлов, строк кода, разбивка по типам файлов и недавняя активность в вашем проекте.",
+      "install": "Установить"
+    },
+    "terminalPlugin": {
+      "name": "Терминал",
+      "badge": "официальный",
+      "description": "Встроенный терминал с полным доступом к оболочке прямо в интерфейсе.",
       "install": "Установить"
     },
     "morePlugins": "Ещё",

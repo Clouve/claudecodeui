@@ -1,11 +1,12 @@
-// Service Worker for Claude Code UI PWA
+// Service Worker for AI Workspace PWA
 // Cache only manifest (needed for PWA install). HTML and JS are never pre-cached
 // so a rebuild + refresh always picks up the latest assets.
 
 // Derive base path from service worker URL (e.g. /prefix/sw.js → /prefix)
 const BASE_PATH = new URL('.', self.location).pathname.replace(/\/$/, '');
 
-const CACHE_NAME = 'claude-ui-v2';
+const CACHE_PREFIX = 'claude-ui';
+const CACHE_NAME = `${CACHE_PREFIX}:${encodeURIComponent(BASE_PATH || '/')}:v2`;
 const urlsToCache = [
   `${BASE_PATH}/manifest.json`
 ];
@@ -67,7 +68,7 @@ self.addEventListener('activate', event => {
     caches.keys().then(cacheNames =>
       Promise.all(
         cacheNames
-          .filter(name => name !== CACHE_NAME)
+          .filter(name => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME)
           .map(name => caches.delete(name))
       )
     )
@@ -83,7 +84,7 @@ self.addEventListener('push', event => {
   try {
     payload = event.data.json();
   } catch {
-    payload = { title: 'Claude Code UI', body: event.data.text() };
+    payload = { title: 'AI Workspace', body: event.data.text() };
   }
 
   const options = {
@@ -96,7 +97,7 @@ self.addEventListener('push', event => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(payload.title || 'Claude Code UI', options)
+    self.registration.showNotification(payload.title || 'AI Workspace', options)
   );
 });
 

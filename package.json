@@ -1,11 +1,10 @@
 {
-  "name": "@siteboon/claude-code-ui",
-  "version": "1.27.1",
+  "name": "@cloudcli-ai/cloudcli",
+  "version": "1.28.0",
   "description": "A web-based UI for Claude Code CLI",
   "type": "module",
   "main": "server/index.js",
   "bin": {
-    "claude-code-ui": "server/cli.js",
     "cloudcli": "server/cli.js"
   },
   "files": [
@@ -18,10 +17,10 @@
   "homepage": "https://cloudcli.ai",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/siteboon/claudecodeui.git"
+    "url": "git+https://github.com/Clouve/ai-workspace.git"
   },
   "bugs": {
-    "url": "https://github.com/siteboon/claudecodeui/issues"
+    "url": "https://github.com/Clouve/ai-workspace/issues"
   },
   "scripts": {
     "dev": "concurrently --kill-others \"npm run server\" \"npm run client\"",
@@ -40,10 +39,21 @@
   },
   "keywords": [
     "claude code",
-    "ai",
+    "claude-code",
+    "ai-workspace",
+    "cloudcli",
+    "codex",
+    "gemini",
+    "gemini-cli",
+    "cursor",
+    "cursor-cli",
     "anthropic",
+    "openai",
+    "google",
+    "coding-agent",
+    "web-ui",
     "ui",
-    "mobile"
+    "mobile IDE"
   ],
   "author": "CloudCLI UI Contributors",
   "license": "AGPL-3.0-or-later",

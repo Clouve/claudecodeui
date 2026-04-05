@@ -7,7 +7,7 @@ import type { FolderSuggestion, WorkspaceType } from '../types';
 import FolderBrowserModal from './FolderBrowserModal';
 
 type WorkspacePathFieldProps = {
-  workspaceType: WorkspaceType;
+  workspaceType: WorkspaceType | null;
   value: string;
   disabled?: boolean;
   onChange: (path: string) => void;

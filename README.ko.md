@@ -1,18 +1,18 @@
 <div align="center">
   <img src="public/logo.svg" alt="CloudCLI UI" width="64" height="64">
-  <h1>Cloud CLI (일명 Claude Code UI)</h1>
+  <h1>Cloud CLI (일명 AI Workspace)</h1>
   <p><a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a>, <a href="https://docs.cursor.com/en/cli/overview">Cursor CLI</a>, <a href="https://developers.openai.com/codex">Codex</a>, <a href="https://geminicli.com/">Gemini-CLI</a> 용 데스크톱 및 모바일 UI입니다.<br>로컬 또는 원격에서 실행하여 어디서나 활성 프로젝트와 세션을 확인하세요.</p>
 </div>
 
 <p align="center">
-  <a href="https://cloudcli.ai">CloudCLI Cloud</a> · <a href="https://cloudcli.ai/docs">문서</a> · <a href="https://discord.gg/buxwujPNRE">Discord</a> · <a href="https://github.com/siteboon/claudecodeui/issues">버그 신고</a> · <a href="CONTRIBUTING.md">기여 안내</a>
+  <a href="https://cloudcli.ai">CloudCLI Cloud</a> · <a href="https://cloudcli.ai/docs">문서</a> · <a href="https://discord.gg/buxwujPNRE">Discord</a> · <a href="https://github.com/Clouve/ai-workspace/issues">버그 신고</a> · <a href="CONTRIBUTING.md">기여 안내</a>
 </p>
 
 <p align="center">
   <a href="https://cloudcli.ai"><img src="https://img.shields.io/badge/☁️_CloudCLI_Cloud-Try_Now-0066FF?style=for-the-badge" alt="CloudCLI Cloud"></a>
   <a href="https://discord.gg/buxwujPNRE"><img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord 커뮤니티"></a>
   <br><br>
-  <a href="https://trendshift.io/repositories/15586" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15586" alt="siteboon%2Fclaudecodeui | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+  <a href="https://trendshift.io/repositories/15586" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15586" alt="Clouve%2Fai-workspace | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 </p>
 
 <div align="right"><i><a href="./README.md">English</a> · <a href="./README.ru.md">Русский</a> · <a href="./README.de.md">Deutsch</a> · <b>한국어</b> · <a href="./README.zh-CN.md">中文</a> · <a href="./README.ja.md">日本語</a></i></div>
@@ -75,13 +75,13 @@
 **npx**로 즉시 CloudCLI UI를 실행하세요 (Node.js v22+ 필요):
 
 ```bash
-npx @siteboon/claude-code-ui
+npx @cloudcli-ai/cloudcli
 ```
 
 **정기적으로 사용한다면 전역 설치:**
 
 ```bash
-npm install -g @siteboon/claude-code-ui
+npm install -g @cloudcli-ai/cloudcli
 cloudcli
 ```
 
@@ -99,7 +99,7 @@ CloudCLI UI는 CloudCLI Cloud를 구동하는 오픈 소스 UI 계층입니다. 
 |---|---|---|
 | **적합한 대상** | 로컬 에이전트 세션을 위한 전체 UI가 필요한 개발자 | 어디서든 접근 가능한 클라우드에서 에이전트를 운영하고자 하는 팀 및 개발자 |
 | **접근 방법** | `[yourip]:port`를 통해 브라우저 접속 | 브라우저, IDE, REST API, n8n |
-| **설정** | `npx @siteboon/claude-code-ui` | 설정 불필요 |
+| **설정** | `npx @cloudcli-ai/cloudcli` | 설정 불필요 |
 | **기기 유지 필요 여부** | 예 (머신 켜둬야 함) | 아니오 |
 | **모바일 접근** | 네트워크 내 브라우저 | 모든 기기 (네이티브 앱 예정) |
 | **세션 접근** | `~/.claude`에서 자동 발견 | 클라우드 환경 내 세션 |
@@ -199,14 +199,16 @@ CloudCLI UI와 CloudCLI Cloud는 Claude Code를 확장하며 별도로 존재하
 
 - **[문서](https://cloudcli.ai/docs)** — 설치, 구성, 기능, 문제 해결 안내
 - **[Discord](https://discord.gg/buxwujPNRE)** — 도움 및 커뮤니티 참여
-- **[GitHub Issues](https://github.com/siteboon/claudecodeui/issues)** — 버그 보고 및 기능 요청
+- **[GitHub Issues](https://github.com/Clouve/ai-workspace/issues)** — 버그 보고 및 기능 요청
 - **[기여 안내](CONTRIBUTING.md)** — 프로젝트 참여 방법
 
 ## 라이선스
 
-GNU General Public License v3.0 - 자세한 내용은 [LICENSE](LICENSE) 파일 참조.
+GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later) - 자세한 내용은 [LICENSE](LICENSE) 파일 참조 (Section 7 추가 조항 포함).
 
-이 프로젝트는 GPL v3 라이선스 하에 오픈 소스로 공개되어 있으며 자유롭게 사용, 수정, 배포할 수 있습니다.
+이 프로젝트는 AGPL-3.0-or-later 라이선스 하에 오픈 소스로 공개되어 있으며 자유롭게 사용, 수정, 배포할 수 있습니다.
+
+CloudCLI UI (https://github.com/Clouve/ai-workspace)
 
 ## 감사의 말
 
@@ -222,7 +224,7 @@ GNU General Public License v3.0 - 자세한 내용은 [LICENSE](LICENSE) 파일 
 - **[TaskMaster AI](https://github.com/eyaltoledano/claude-task-master)** *(선택사항)* - AI 기반 프로젝트 관리 및 작업 계획
 
 ### 스폰서
-- [Siteboon - AI powered website builder](https://siteboon.ai)
+- [Clouve - AI powered website builder](https://Clouve.ai)
 ---
 
 <div align="center">

@@ -90,12 +90,21 @@ export function TaskMasterProvider({ children }: { children: React.ReactNode }) 
 
   const setCurrentProject = useCallback((project: TaskMasterProjectInput) => {
     const normalizedProject = project ? enrichProject(project as TaskMasterProject) : null;
-    setCurrentProjectState(normalizedProject);
-    setProjectTaskMaster(normalizedProject?.taskmaster ?? null);
+    const isSameProject = normalizedProject?.name != null
+      && normalizedProject.name === currentProjectNameRef.current;
 
-    // Project-scoped task data is reset immediately to avoid stale task rendering.
-    setTasks([]);
-    setNextTask(null);
+    setCurrentProjectState(normalizedProject);
+
+    if (!isSameProject) {
+      // Switching to a different project — reset everything.
+      setProjectTaskMaster(normalizedProject?.taskmaster ?? null);
+      setTasks([]);
+      setNextTask(null);
+    }
+    // When re-setting the same project (e.g. sidebar selection refresh),
+    // do NOT overwrite projectTaskMaster. refreshProjects() is the sole
+    // authority for projectTaskMaster updates on the current project —
+    // it fetches directly from the API and always has the latest data.
   }, []);
 
   const refreshProjects = useCallback(async () => {

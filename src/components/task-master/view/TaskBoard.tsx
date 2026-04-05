@@ -9,7 +9,6 @@ import TaskBoardToolbar from './TaskBoardToolbar';
 import TaskEmptyState from './TaskEmptyState';
 import CreateTaskModal from './modals/CreateTaskModal';
 import TaskHelpModal from './modals/TaskHelpModal';
-import TaskMasterSetupModal from './modals/TaskMasterSetupModal';
 
 type TaskBoardProps = {
   tasks?: TaskMasterTask[];
@@ -36,11 +35,10 @@ export default function TaskBoard({
   existingPRDs = [],
   onRefreshPRDs = null,
 }: TaskBoardProps) {
-  const { projectTaskMaster, refreshProjects, refreshTasks, setCurrentProject } = useTaskMaster();
+  const { projectTaskMaster, currentProject: contextProject } = useTaskMaster();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
-  const [showSetupModal, setShowSetupModal] = useState(false);
 
   const {
     searchTerm,
@@ -66,8 +64,8 @@ export default function TaskBoard({
   } = useTaskBoardState({ tasks, defaultView });
 
   const hasTaskMasterDirectory = Boolean(
-    currentProject?.taskMasterConfigured
-      || currentProject?.taskmaster?.hasTaskmaster
+    contextProject?.taskMasterConfigured
+      || contextProject?.taskmaster?.hasTaskmaster
       || projectTaskMaster?.hasTaskmaster,
   );
 
@@ -96,15 +94,6 @@ export default function TaskBoard({
     }
   };
 
-  const refreshAfterSetup = () => {
-    void refreshProjects();
-    if (currentProject) {
-      setCurrentProject(currentProject);
-    }
-    void refreshTasks();
-    onRefreshPRDs?.(false);
-  };
-
   if (tasks.length === 0) {
     return (
       <>
@@ -112,18 +101,10 @@ export default function TaskBoard({
           className={className}
           hasTaskMasterDirectory={hasTaskMasterDirectory}
           existingPrds={existingPRDs}
-          onOpenSetupModal={() => setShowSetupModal(true)}
           onCreatePrd={() => onShowPRDEditor?.()}
           onOpenPrd={(prd) => {
             void loadPrdAndOpenEditor(prd);
           }}
-        />
-
-        <TaskMasterSetupModal
-          isOpen={showSetupModal}
-          project={currentProject}
-          onClose={() => setShowSetupModal(false)}
-          onAfterClose={refreshAfterSetup}
         />
       </>
     );
@@ -188,12 +169,6 @@ export default function TaskBoard({
         onCreatePrd={() => onShowPRDEditor?.()}
       />
 
-      <TaskMasterSetupModal
-        isOpen={showSetupModal}
-        project={currentProject}
-        onClose={() => setShowSetupModal(false)}
-        onAfterClose={refreshAfterSetup}
-      />
     </div>
   );
 }

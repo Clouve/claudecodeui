@@ -26,6 +26,26 @@ export type AuthStatus = {
   method?: string;
 };
 
+export type InstallStatus = {
+  installed: boolean;
+  version: string | null;
+  loading: boolean;
+  installing: boolean;
+  uninstalling: boolean;
+  error: string | null;
+  log: string[];
+};
+
+export type ApiKeyValidationStatus = 'idle' | 'validating' | 'valid' | 'invalid';
+
+export type ApiKeyStatus = {
+  available: boolean;
+  source: 'env' | 'input' | null;
+  masked: string | null;
+  validationStatus: ApiKeyValidationStatus;
+  validationError: string | null;
+};
+
 export type KeyValueMap = Record<string, string>;
 
 export type McpServerConfig = {

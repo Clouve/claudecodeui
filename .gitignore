@@ -106,7 +106,6 @@ temp/
 .cline/
 .windsurf/
 .serena/
-CLAUDE.md
 .mcp.json
 .gemini/
 
@@ -139,3 +138,5 @@ tasks/
 
 # Git worktrees
 .worktrees/
+
+.playwright-mcp

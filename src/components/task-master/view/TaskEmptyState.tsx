@@ -1,13 +1,15 @@
+import { useState } from 'react';
 import { FileText, Settings, Terminal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../lib/utils';
+import { useTaskMaster } from '../context/TaskMasterContext';
 import type { PrdFile } from '../types';
+import TaskMasterSetupModal from './modals/TaskMasterSetupModal';
 
 type TaskEmptyStateProps = {
   className?: string;
   hasTaskMasterDirectory: boolean;
   existingPrds: PrdFile[];
-  onOpenSetupModal: () => void;
   onCreatePrd: () => void;
   onOpenPrd: (prd: PrdFile) => void;
 };
@@ -16,11 +18,17 @@ export default function TaskEmptyState({
   className = '',
   hasTaskMasterDirectory,
   existingPrds,
-  onOpenSetupModal,
   onCreatePrd,
   onOpenPrd,
 }: TaskEmptyStateProps) {
   const { t } = useTranslation('tasks');
+  const { currentProject, refreshProjects, refreshTasks } = useTaskMaster();
+  const [showSetupModal, setShowSetupModal] = useState(false);
+
+  const handleSetupRefresh = async () => {
+    await refreshProjects();
+    void refreshTasks();
+  };
 
   if (!hasTaskMasterDirectory) {
     return (
@@ -45,13 +53,20 @@ export default function TaskEmptyState({
           </div>
 
           <button
-            onClick={onOpenSetupModal}
+            onClick={() => setShowSetupModal(true)}
             className="mx-auto flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"
           >
             <Terminal className="h-4 w-4" />
             {t('notConfigured.initializeButton')}
           </button>
         </div>
+
+        <TaskMasterSetupModal
+          isOpen={showSetupModal}
+          project={currentProject}
+          onClose={() => setShowSetupModal(false)}
+          onAfterClose={handleSetupRefresh}
+        />
       </div>
     );
   }

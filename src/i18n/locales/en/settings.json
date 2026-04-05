@@ -294,17 +294,26 @@
   },
   "tasks": {
     "checking": "Checking TaskMaster installation...",
+    "title": "TaskMaster AI",
+    "description": "AI-powered task management CLI",
     "notInstalled": {
       "title": "TaskMaster AI CLI Not Installed",
-      "description": "TaskMaster CLI is required to use task management features. Install it to get started:",
-      "installCommand": "npm install -g task-master-ai",
-      "viewOnGitHub": "View on GitHub",
-      "afterInstallation": "After installation:",
-      "steps": {
-        "restart": "Restart this application",
-        "autoAvailable": "TaskMaster features will automatically become available",
-        "initCommand": "Use task-master init in your project directory"
-      }
+      "description": "TaskMaster CLI is required to use task management features.",
+      "viewOnGitHub": "View on GitHub"
+    },
+    "install": {
+      "installButton": "Install",
+      "reinstallButton": "Reinstall",
+      "uninstallButton": "Uninstall",
+      "installing": "Installing...",
+      "uninstalling": "Uninstalling...",
+      "installed": "Installed",
+      "notInstalled": "Not installed",
+      "version": "Version: {{version}}",
+      "showLog": "Show log",
+      "hideLog": "Hide log",
+      "waitingForLog": "Installing — waiting for output…",
+      "uninstallWaitingForLog": "Uninstalling — waiting for output…"
     },
     "settings": {
       "enableLabel": "Enable TaskMaster Integration",
@@ -336,6 +345,23 @@
       }
     },
     "connectionStatus": "Connection Status",
+    "installStatus": "Installation",
+    "install": {
+      "installed": "Installed",
+      "notInstalled": "Not installed",
+      "installing": "Installing...",
+      "uninstalling": "Uninstalling...",
+      "version": "Version: {{version}}",
+      "installButton": "Install",
+      "uninstallButton": "Uninstall",
+      "reinstallButton": "Reinstall",
+      "installDescription": "Install {{agent}} to use it as an AI coding assistant",
+      "installedDescription": "{{agent}} is ready to use",
+      "showLog": "Show log",
+      "hideLog": "Hide log",
+      "waitingForLog": "Installing — waiting for output…",
+      "uninstallWaitingForLog": "Uninstalling — waiting for output…"
+    },
     "login": {
       "title": "Login",
       "reAuthenticate": "Re-authenticate",
@@ -344,7 +370,36 @@
       "button": "Login",
       "reLoginButton": "Re-login"
     },
-    "error": "Error: {{error}}"
+    "error": "Error: {{error}}",
+    "apiKey": {
+      "title": "API Key",
+      "description": "Enter your API key for {{agent}} to enable installation",
+      "setViaEnv": "Persisted",
+      "validated": "API key validated successfully",
+      "cursorNote": "Enter your Cursor API key — authentication is verified after installation",
+      "cursorSaved": "API key saved — will be verified after installation",
+      "validating": "Validating...",
+      "saving": "Saving...",
+      "valid": "Valid",
+      "saved": "Saved",
+      "saveButton": "Save",
+      "invalid": "Invalid",
+      "notSet": "Not set",
+      "placeholder": "Enter {{agent}} API key...",
+      "validateButton": "Validate",
+      "updateButton": "Update Key",
+      "updateHint": "Enter a new key above to update your API credentials",
+      "validateFirst": "A valid API key is required before installation",
+      "envLabel": "Set via environment variable — cannot be edited here",
+      "getKey": "Get a key"
+    },
+    "unified": {
+      "notSetUp": "Not set up",
+      "ready": "Ready to install",
+      "validateAndInstall": "Validate & Install",
+      "saveAndInstall": "Save & Install",
+      "settingUp": "Setting up…"
+    }
   },
   "permissions": {
     "title": "Permission Settings",
@@ -458,7 +513,7 @@
   },
   "pluginSettings": {
     "title": "Plugins",
-    "description": "Extend the interface with custom plugins. Install from git or drop a folder in ~/.claude-code-ui/plugins/",
+    "description": "Extend the interface with custom plugins. Install from git or drop a folder in ~/.ai-workspace/plugins/",
     "installPlaceholder": "https://github.com/user/my-plugin",
     "installButton": "Install",
     "installing": "Installing…",

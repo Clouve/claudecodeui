@@ -36,7 +36,10 @@ router.get('/cli/list', async (req, res) => {
       stderr += data.toString();
     });
     
+    let responded = false;
     process.on('close', (code) => {
+      if (responded) return;
+      responded = true;
       if (code === 0) {
         res.json({ success: true, output: stdout, servers: parseClaudeListOutput(stdout) });
       } else {
@@ -44,8 +47,10 @@ router.get('/cli/list', async (req, res) => {
         res.status(500).json({ error: 'Claude CLI command failed', details: stderr });
       }
     });
-    
+
     process.on('error', (error) => {
+      if (responded) return;
+      responded = true;
       console.error('Error running Claude CLI:', error);
       res.status(500).json({ error: 'Failed to run Claude CLI', details: error.message });
     });
@@ -119,7 +124,10 @@ router.post('/cli/add', async (req, res) => {
       stderr += data.toString();
     });
     
+    let responded = false;
     process.on('close', (code) => {
+      if (responded) return;
+      responded = true;
       if (code === 0) {
         res.json({ success: true, output: stdout, message: `MCP server "${name}" added successfully` });
       } else {
@@ -127,8 +135,10 @@ router.post('/cli/add', async (req, res) => {
         res.status(400).json({ error: 'Claude CLI command failed', details: stderr });
       }
     });
-    
+
     process.on('error', (error) => {
+      if (responded) return;
+      responded = true;
       console.error('Error running Claude CLI:', error);
       res.status(500).json({ error: 'Failed to run Claude CLI', details: error.message });
     });
@@ -212,7 +222,10 @@ router.post('/cli/add-json', async (req, res) => {
       stderr += data.toString();
     });
     
+    let responded = false;
     process.on('close', (code) => {
+      if (responded) return;
+      responded = true;
       if (code === 0) {
         res.json({ success: true, output: stdout, message: `MCP server "${name}" added successfully via JSON` });
       } else {
@@ -220,8 +233,10 @@ router.post('/cli/add-json', async (req, res) => {
         res.status(400).json({ error: 'Claude CLI command failed', details: stderr });
       }
     });
-    
+
     process.on('error', (error) => {
+      if (responded) return;
+      responded = true;
       console.error('Error running Claude CLI:', error);
       res.status(500).json({ error: 'Failed to run Claude CLI', details: error.message });
     });
@@ -282,7 +297,10 @@ router.delete('/cli/remove/:name', async (req, res) => {
       stderr += data.toString();
     });
     
+    let responded = false;
     process.on('close', (code) => {
+      if (responded) return;
+      responded = true;
       if (code === 0) {
         res.json({ success: true, output: stdout, message: `MCP server "${name}" removed successfully` });
       } else {
@@ -290,8 +308,10 @@ router.delete('/cli/remove/:name', async (req, res) => {
         res.status(400).json({ error: 'Claude CLI command failed', details: stderr });
       }
     });
-    
+
     process.on('error', (error) => {
+      if (responded) return;
+      responded = true;
       console.error('Error running Claude CLI:', error);
       res.status(500).json({ error: 'Failed to run Claude CLI', details: error.message });
     });
@@ -325,7 +345,10 @@ router.get('/cli/get/:name', async (req, res) => {
       stderr += data.toString();
     });
     
+    let responded = false;
     process.on('close', (code) => {
+      if (responded) return;
+      responded = true;
       if (code === 0) {
         res.json({ success: true, output: stdout, server: parseClaudeGetOutput(stdout) });
       } else {
@@ -333,8 +356,10 @@ router.get('/cli/get/:name', async (req, res) => {
         res.status(404).json({ error: 'Claude CLI command failed', details: stderr });
       }
     });
-    
+
     process.on('error', (error) => {
+      if (responded) return;
+      responded = true;
       console.error('Error running Claude CLI:', error);
       res.status(500).json({ error: 'Failed to run Claude CLI', details: error.message });
     });

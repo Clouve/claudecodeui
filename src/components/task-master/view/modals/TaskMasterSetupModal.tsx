@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { Plus, Terminal } from 'lucide-react';
+import { useCallback } from 'react';
+import { Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '../../../../lib/utils';
-import Shell from '../../../shell/view/Shell';
+import { useTaskMaster } from '../../context/TaskMasterContext';
+import { useTaskmasterInit } from '../../hooks/useTaskmasterInit';
 import type { TaskMasterProject } from '../../types';
+import TaskmasterInitPanel from '../TaskmasterInitPanel';
 
 type TaskMasterSetupModalProps = {
   isOpen: boolean;
@@ -14,7 +15,17 @@ type TaskMasterSetupModalProps = {
 
 export default function TaskMasterSetupModal({ isOpen, project, onClose, onAfterClose = null }: TaskMasterSetupModalProps) {
   const { t } = useTranslation('tasks');
-  const [isTaskMasterComplete, setIsTaskMasterComplete] = useState(false);
+  const { refreshProjects, refreshTasks } = useTaskMaster();
+
+  const onInitSuccess = useCallback(async () => {
+    await refreshProjects();
+    void refreshTasks();
+  }, [refreshProjects, refreshTasks]);
+
+  const { status, log, error, showLog, setShowLog, runInit, resetState } = useTaskmasterInit({
+    projectName: project?.name,
+    onSuccess: onInitSuccess,
+  });
 
   if (!isOpen || !project) {
     return null;
@@ -22,21 +33,24 @@ export default function TaskMasterSetupModal({ isOpen, project, onClose, onAfter
 
   const closeModal = () => {
     onClose();
-    setIsTaskMasterComplete(false);
 
-    // Delay refresh slightly so the CLI has time to flush writes to disk.
-    window.setTimeout(() => {
+    if (status === 'success') {
       onAfterClose?.();
-    }, 800);
+    }
+
+    resetState();
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 pt-16 backdrop-blur-sm">
-      <div className="flex h-[600px] w-full max-w-4xl flex-col rounded-lg border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900">
+      <div className="flex w-full max-w-2xl flex-col rounded-lg border border-gray-200 bg-white text-left shadow-xl dark:border-gray-700 dark:bg-gray-900">
+        {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/50">
-              <Terminal className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
+              <svg className="h-4 w-4 text-teal-600 dark:text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+              </svg>
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('setupModal.title')}</h2>
@@ -53,49 +67,18 @@ export default function TaskMasterSetupModal({ isOpen, project, onClose, onAfter
           </button>
         </div>
 
-        <div className="flex-1 p-4">
-          <div className="h-full overflow-hidden rounded-lg bg-black">
-            <Shell
-              selectedProject={project}
-              selectedSession={null}
-              initialCommand="npx task-master init"
-              isPlainShell
-              isActive
-              onProcessComplete={(exitCode) => {
-                if (exitCode === 0) {
-                  setIsTaskMasterComplete(true);
-                }
-              }}
-            />
-          </div>
-        </div>
-
-        <div className="border-t border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              {isTaskMasterComplete ? (
-                <span className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                  <span className="h-2 w-2 rounded-full bg-green-500" />
-                  {t('setupModal.completed')}
-                </span>
-              ) : (
-                t('setupModal.willStart')
-              )}
-            </div>
-
-            <button
-              onClick={closeModal}
-              className={cn(
-                'px-4 py-2 text-sm font-medium rounded-md transition-colors',
-                isTaskMasterComplete
-                  ? 'bg-green-600 hover:bg-green-700 text-white'
-                  : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600',
-              )}
-            >
-              {isTaskMasterComplete ? t('setupModal.closeContinueButton') : t('setupModal.closeButton')}
-            </button>
-          </div>
-        </div>
+        {/* Content + Footer via shared panel */}
+        <TaskmasterInitPanel
+          className="p-4"
+          status={status}
+          log={log}
+          error={error}
+          showLog={showLog}
+          onToggleLog={() => setShowLog((v) => !v)}
+          onRunInit={runInit}
+          onClose={closeModal}
+          projectDisplayName={project.displayName}
+        />
       </div>
     </div>
   );

@@ -61,6 +61,7 @@ import settingsRoutes from './routes/settings.js';
 import agentRoutes from './routes/agent.js';
 import projectsRoutes, { WORKSPACES_ROOT, validateWorkspacePath } from './routes/projects.js';
 import cliAuthRoutes from './routes/cli-auth.js';
+import cliInstallerRoutes from './routes/cli-installer.js';
 import userRoutes from './routes/user.js';
 import codexRoutes from './routes/codex.js';
 import geminiRoutes from './routes/gemini.js';
@@ -68,7 +69,7 @@ import pluginsRoutes from './routes/plugins.js';
 import messagesRoutes from './routes/messages.js';
 import { createNormalizedMessage } from './providers/types.js';
 import { startEnabledPluginServers, stopAllPlugins, getPluginPort } from './utils/plugin-process-manager.js';
-import { initializeDatabase, sessionNamesDb, applyCustomSessionNames } from './database/db.js';
+import { initializeDatabase, userDb, sessionNamesDb, applyCustomSessionNames } from './database/db.js';
 import { configureWebPush } from './services/vapid-keys.js';
 import { validateApiKey, authenticateToken, authenticateWebSocket } from './middleware/auth.js';
 import { IS_PLATFORM } from './constants/config.js';
@@ -345,7 +346,11 @@ app.use(express.json({
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Application base path — configurable via BASE_PATH env var, defaults to /
-const BASE_PATH = (process.env.BASE_PATH || '/').replace(/\/+$/, '');
+const rawBasePath = (process.env.BASE_PATH || '/').trim();
+const BASE_PATH =
+    !rawBasePath || rawBasePath === '/'
+        ? ''
+        : `/${rawBasePath.replace(/^\/+|\/+$/g, '')}`;
 
 // Public health check endpoint (no authentication required)
 app.get(`${BASE_PATH}/health`, (req, res) => {
@@ -393,6 +398,9 @@ app.use(`${BASE_PATH}/api/settings`, authenticateToken, settingsRoutes);
 
 // CLI Authentication API Routes (protected)
 app.use(`${BASE_PATH}/api/cli`, authenticateToken, cliAuthRoutes);
+
+// CLI Installer API Routes (protected) — on-demand install/uninstall of AI clients
+app.use(`${BASE_PATH}/api/cli-installer`, authenticateToken, cliInstallerRoutes);
 
 // User API Routes (protected)
 app.use(`${BASE_PATH}/api/user`, authenticateToken, userRoutes);
@@ -446,7 +454,7 @@ app.post(`${BASE_PATH}/api/system/update`, authenticateToken, async (req, res) =
         // Run the update command based on install mode
         const updateCommand = installMode === 'git'
             ? 'git checkout main && git pull && npm install'
-            : 'npm install -g @siteboon/claude-code-ui@latest';
+            : 'npm install -g @cloudcli-ai/cloudcli@latest';
 
         const child = spawn('sh', ['-c', updateCommand], {
             cwd: installMode === 'git' ? projectRoot : os.homedir(),
@@ -2530,6 +2538,26 @@ async function startServer() {
         // Initialize authentication database
         await initializeDatabase();
 
+        // Platform mode: ensure a default user exists so that the
+        // authenticateToken middleware can look up a user without requiring
+        // the normal registration flow. Without this, all authenticated
+        // endpoints return 500 and the frontend renders a blank page.
+        if (IS_PLATFORM && !userDb.hasUsers()) {
+            const bcrypt = await import('bcrypt');
+            const hash = await bcrypt.hash('platform', 10);
+            userDb.createUser('platform', hash);
+            // Mark onboarding as complete so the frontend skips the wizard.
+            const user = userDb.getFirstUser();
+            if (user) {
+                try {
+                    userDb.completeOnboarding(user.id);
+                } catch {
+                    // Column may not exist on very first run before migrations.
+                }
+            }
+            console.log(`${c.info('[INFO]')} Platform mode: created default user`);
+        }
+
         // Configure Web Push (VAPID keys)
         configureWebPush();
 
@@ -2552,7 +2580,7 @@ async function startServer() {
 
             console.log('');
             console.log(c.dim('═'.repeat(63)));
-            console.log(`  ${c.bright('Claude Code UI Server - Ready')}`);
+            console.log(`  ${c.bright('AI Workspace Server - Ready')}`);
             console.log(c.dim('═'.repeat(63)));
             console.log('');
             console.log(`${c.info('[INFO]')} Server URL:  ${c.bright('http://' + DISPLAY_HOST + ':' + SERVER_PORT)}`);

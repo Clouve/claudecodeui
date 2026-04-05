@@ -53,10 +53,11 @@ export type CloneProgressEvent = {
 };
 
 export type WizardFormState = {
-  workspaceType: WorkspaceType;
+  workspaceType: WorkspaceType | null;
   workspacePath: string;
   githubUrl: string;
   tokenMode: TokenMode;
   selectedGithubToken: string;
   newGithubToken: string;
+  initializeTaskmaster: boolean;
 };

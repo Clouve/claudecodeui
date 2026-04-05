@@ -20,7 +20,7 @@
     "runClaudeCli": "프로젝트 디렉토리에서 Claude CLI를 실행하여 시작하세요"
   },
   "app": {
-    "title": "Claude Code UI",
+    "title": "AI Workspace",
     "subtitle": "AI 코딩 어시스턴트 UI"
   },
   "sessions": {
@@ -46,7 +46,8 @@
     "editSessionName": "세션 이름 직접 편집",
     "deleteSession": "이 세션 영구 삭제",
     "save": "저장",
-    "cancel": "취소"
+    "cancel": "취소",
+    "clearSearch": "검색 지우기"
   },
   "navigation": {
     "chat": "채팅",
@@ -102,6 +103,18 @@
   },
   "version": {
     "updateAvailable": "업데이트 가능"
+  },
+  "search": {
+    "modeProjects": "프로젝트",
+    "modeConversations": "대화",
+    "conversationsPlaceholder": "대화 검색...",
+    "searching": "검색 중...",
+    "noResults": "결과를 찾을 수 없음",
+    "tryDifferentQuery": "다른 검색어를 시도해보세요",
+    "matches_one": "{{count}}개 일치",
+    "matches_other": "{{count}}개 일치",
+    "projectsScanned_one": "{{count}}개 프로젝트 스캔됨",
+    "projectsScanned_other": "{{count}}개 프로젝트 스캔됨"
   },
   "deleteConfirmation": {
     "deleteProject": "프로젝트 삭제",

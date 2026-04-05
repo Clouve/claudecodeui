@@ -37,26 +37,28 @@ export default function WizardFooter({
         )}
       </Button>
 
-      <Button onClick={step === 3 ? onCreate : onNext} disabled={isCreating}>
-        {isCreating ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            {isCloneWorkflow
-              ? t('projectWizard.buttons.cloning', { defaultValue: 'Cloning...' })
-              : t('projectWizard.buttons.creating')}
-          </>
-        ) : step === 3 ? (
-          <>
-            <Check className="mr-1 h-4 w-4" />
-            {t('projectWizard.buttons.createProject')}
-          </>
-        ) : (
-          <>
-            {t('projectWizard.buttons.next')}
-            <ChevronRight className="ml-1 h-4 w-4" />
-          </>
-        )}
-      </Button>
+      {step !== 1 && (
+        <Button onClick={step === 3 ? onCreate : onNext} disabled={isCreating}>
+          {isCreating ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {isCloneWorkflow
+                ? t('projectWizard.buttons.cloning', { defaultValue: 'Cloning...' })
+                : t('projectWizard.buttons.creating')}
+            </>
+          ) : step === 3 ? (
+            <>
+              <Check className="mr-1 h-4 w-4" />
+              {t('projectWizard.buttons.createProject')}
+            </>
+          ) : (
+            <>
+              {t('projectWizard.buttons.next')}
+              <ChevronRight className="ml-1 h-4 w-4" />
+            </>
+          )}
+        </Button>
+      )}
     </div>
   );
 }
