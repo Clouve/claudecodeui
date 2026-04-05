@@ -188,6 +188,12 @@
       "codex": "Ready to use Codex with {{model}}. Start typing your message below.",
       "gemini": "Ready to use Gemini with {{model}}. Start typing your message below.",
       "default": "Select a provider above to begin"
+    },
+    "noProviders": {
+      "title": "No AI Clients Installed",
+      "description": "Install at least one AI client to get started.",
+      "openSettings": "Go to Settings",
+      "moreAvailable": "More AI clients available to install."
     }
   },
   "session": {

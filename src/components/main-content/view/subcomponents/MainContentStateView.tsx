@@ -1,4 +1,4 @@
-import { Folder } from 'lucide-react';
+import { Folder, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { MainContentStateViewProps } from '../../types/types';
 import MobileMenuButton from './MobileMenuButton';
@@ -41,11 +41,19 @@ export default function MainContentStateView({ mode, isMobile, onMenuClick }: Ma
             </div>
             <h2 className="mb-2 text-xl font-semibold text-foreground">{t('mainContent.chooseProject')}</h2>
             <p className="mb-5 text-sm leading-relaxed text-muted-foreground">{t('mainContent.selectProjectDescription')}</p>
-            <div className="rounded-xl border border-primary/10 bg-primary/5 p-3.5">
-              <p className="text-sm text-primary">
-                <strong>{t('mainContent.tip')}:</strong> {isMobile ? t('mainContent.createProjectMobile') : t('mainContent.createProjectDesktop')}
-              </p>
-            </div>
+            <button
+              onClick={() => {
+                if (isMobile) {
+                  onMenuClick();
+                } else {
+                  window.openCreateProject?.();
+                }
+              }}
+              className="inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-5 py-3 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
+            >
+              <Plus className="h-4 w-4" />
+              {isMobile ? t('mainContent.createProjectMobile') : t('mainContent.createNewProject')}
+            </button>
           </div>
         </div>
       )}

@@ -123,6 +123,17 @@ function Sidebar({
     document.body.classList.toggle('pwa-mode', isPWA);
   }, [isPWA]);
 
+  useEffect(() => {
+    const openCreateProject = () => setShowNewProject(true);
+    window.openCreateProject = openCreateProject;
+
+    return () => {
+      if (window.openCreateProject === openCreateProject) {
+        delete window.openCreateProject;
+      }
+    };
+  }, [setShowNewProject]);
+
   const handleProjectCreated = () => {
     if (window.refreshProjects) {
       void window.refreshProjects();

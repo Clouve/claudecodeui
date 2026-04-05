@@ -6,7 +6,7 @@ import { spawn } from 'child_process';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import crypto from 'crypto';
-import { CURSOR_MODELS } from '../../shared/modelConstants.js';
+import { getDefaultModel } from '../models/model-discovery.js';
 import { applyCustomSessionNames } from '../database/db.js';
 
 const router = express.Router();
@@ -35,7 +35,7 @@ router.get('/config', async (req, res) => {
         config: {
           version: 1,
           model: {
-            modelId: CURSOR_MODELS.DEFAULT,
+            modelId: getDefaultModel('cursor'),
             displayName: "GPT-5"
           },
           permissions: {

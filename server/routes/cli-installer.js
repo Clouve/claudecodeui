@@ -4,6 +4,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
+import { discoverModels } from '../models/model-discovery.js';
 
 const router = express.Router();
 
@@ -332,6 +333,9 @@ router.post('/:provider/save-key', async (req, res) => {
     } catch { /* best-effort — key is still in process.env for this session */ }
   }
 
+  // Re-discover models now that the API key is available
+  discoverModels(provider).catch(() => {});
+
   res.json({ success: true });
 });
 
@@ -528,6 +532,8 @@ router.post('/:provider/install', async (req, res) => {
     // Run provider-specific post-install auth (e.g. codex login --with-api-key)
     if (result.success) {
       await postInstallAuth(provider, wss);
+      // Discover available models now that the CLI is installed
+      discoverModels(provider).catch(() => {});
     }
 
     const status = await detectClient(provider);

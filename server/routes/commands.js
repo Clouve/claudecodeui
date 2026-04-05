@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import os from 'os';
-import { CLAUDE_MODELS, CURSOR_MODELS, CODEX_MODELS } from '../../shared/modelConstants.js';
+import { getModels, getDefaultModel } from '../models/model-discovery.js';
 import { parseFrontmatter } from '../utils/frontmatter.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -183,15 +183,15 @@ Custom commands can be created in:
   },
 
   '/model': async (args, context) => {
-    // Read available models from centralized constants
+    // Read available models from dynamic registry (falls back to static baseline)
     const availableModels = {
-      claude: CLAUDE_MODELS.OPTIONS.map(o => o.value),
-      cursor: CURSOR_MODELS.OPTIONS.map(o => o.value),
-      codex: CODEX_MODELS.OPTIONS.map(o => o.value)
+      claude: (getModels('claude')?.options || []).map(o => o.value),
+      cursor: (getModels('cursor')?.options || []).map(o => o.value),
+      codex: (getModels('codex')?.options || []).map(o => o.value),
     };
 
     const currentProvider = context?.provider || 'claude';
-    const currentModel = context?.model || CLAUDE_MODELS.DEFAULT;
+    const currentModel = context?.model || getDefaultModel('claude');
 
     return {
       type: 'builtin',
@@ -215,10 +215,10 @@ Custom commands can be created in:
     const model =
       context?.model ||
       (provider === 'cursor'
-        ? CURSOR_MODELS.DEFAULT
+        ? getDefaultModel('cursor')
         : provider === 'codex'
-          ? CODEX_MODELS.DEFAULT
-          : CLAUDE_MODELS.DEFAULT);
+          ? getDefaultModel('codex')
+          : getDefaultModel('claude'));
 
     const used = Number(tokenUsage.used ?? tokenUsage.totalUsed ?? tokenUsage.total_tokens ?? 0) || 0;
     const total =

@@ -39,7 +39,6 @@ Requires Node.js 22+. Husky pre-commit hook runs lint-staged (ESLint on `src/**/
 - `server/claude-sdk.js` — Claude Agent SDK integration (`@anthropic-ai/claude-agent-sdk`)
 
 **Shared** (`shared/`):
-- `modelConstants.js` — Supported model list for all providers
 - `networkHosts.js` — Host/loopback normalization utilities (used by both Vite config and server)
 
 **Environment**: Configured via `.env` (see `.env.example`). Key vars: `SERVER_PORT` (default 3001), `VITE_PORT` (default 5173), `HOST`, `BASE_PATH`, `VITE_IS_PLATFORM`, `DATABASE_PATH`, `WORKSPACES_ROOT`.

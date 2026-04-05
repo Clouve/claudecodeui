@@ -91,6 +91,7 @@
     "tip": "Tip",
     "createProjectMobile": "Tap the menu button above to access projects",
     "createProjectDesktop": "Create a new project by clicking the folder icon in the sidebar",
+    "createNewProject": "Create New Project",
     "newSession": "New Session",
     "untitledSession": "Untitled Session",
     "projectFiles": "Project Files"

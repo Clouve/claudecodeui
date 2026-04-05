@@ -11,7 +11,7 @@ import { spawnCursor } from '../cursor-cli.js';
 import { queryCodex } from '../openai-codex.js';
 import { spawnGemini } from '../gemini-cli.js';
 import { Octokit } from '@octokit/rest';
-import { CLAUDE_MODELS, CURSOR_MODELS, CODEX_MODELS } from '../../shared/modelConstants.js';
+import { getDefaultModel } from '../models/model-discovery.js';
 import { IS_PLATFORM } from '../constants/config.js';
 
 const router = express.Router();
@@ -972,7 +972,7 @@ router.post('/', validateExternalApiKey, async (req, res) => {
         projectPath: finalProjectPath,
         cwd: finalProjectPath,
         sessionId: sessionId || null,
-        model: model || CODEX_MODELS.DEFAULT,
+        model: model || getDefaultModel('codex'),
         permissionMode: 'bypassPermissions'
       }, writer);
     } else if (provider === 'gemini') {

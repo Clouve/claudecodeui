@@ -67,6 +67,8 @@ import codexRoutes from './routes/codex.js';
 import geminiRoutes from './routes/gemini.js';
 import pluginsRoutes from './routes/plugins.js';
 import messagesRoutes from './routes/messages.js';
+import modelsRoutes from './routes/models.js';
+import { discoverAllModels } from './models/model-discovery.js';
 import { createNormalizedMessage } from './providers/types.js';
 import { startEnabledPluginServers, stopAllPlugins, getPluginPort } from './utils/plugin-process-manager.js';
 import { initializeDatabase, userDb, sessionNamesDb, applyCustomSessionNames } from './database/db.js';
@@ -416,6 +418,9 @@ app.use(`${BASE_PATH}/api/plugins`, authenticateToken, pluginsRoutes);
 
 // Unified session messages route (protected)
 app.use(`${BASE_PATH}/api/sessions`, authenticateToken, messagesRoutes);
+
+// Models API Routes (protected) — dynamic model discovery
+app.use(`${BASE_PATH}/api/models`, authenticateToken, modelsRoutes);
 
 // Agent API Routes (uses API key authentication)
 app.use(`${BASE_PATH}/api/agent`, agentRoutes);
@@ -2597,6 +2602,11 @@ async function startServer() {
             // Start server-side plugin processes for enabled plugins
             startEnabledPluginServers().catch(err => {
                 console.error('[Plugins] Error during startup:', err.message);
+            });
+
+            // Discover available models from provider APIs (non-blocking)
+            discoverAllModels().catch(err => {
+                console.warn('[model-discovery] Startup discovery failed:', err.message);
             });
         });
 

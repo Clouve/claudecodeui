@@ -17,7 +17,7 @@ import crypto from 'crypto';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
-import { CLAUDE_MODELS } from '../shared/modelConstants.js';
+import { getDefaultModel } from './models/model-discovery.js';
 import {
   createNotificationEvent,
   notifyRunFailed,
@@ -192,9 +192,8 @@ function mapCliOptionsToSDK(options = {}) {
 
   sdkOptions.disallowedTools = settings.disallowedTools || [];
 
-  // Map model (default to sonnet)
-  // Valid models: sonnet, opus, haiku, opusplan, sonnet[1m]
-  sdkOptions.model = options.model || CLAUDE_MODELS.DEFAULT;
+  // Model — accepts full API model IDs (e.g. claude-sonnet-4-6)
+  sdkOptions.model = options.model || getDefaultModel('claude');
   // Model logged at query start below
 
   // Map system prompt configuration
