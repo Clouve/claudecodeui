@@ -188,6 +188,12 @@
       "codex": "{{model}} 모델로 Codex를 사용할 준비가 되었습니다. 아래에 메시지를 입력하세요.",
       "gemini": "{{model}} 모델로 Gemini를 사용할 준비가 되었습니다. 아래에 메시지를 입력하세요.",
       "default": "시작하려면 위에서 제공자를 선택하세요"
+    },
+    "noProviders": {
+      "title": "AI 클라이언트가 설치되지 않았습니다",
+      "description": "시작하려면 최소 하나의 AI 클라이언트를 설치하세요.",
+      "openSettings": "설정으로 이동",
+      "moreAvailable": "설치 가능한 AI 클라이언트가 더 있습니다."
     }
   },
   "session": {

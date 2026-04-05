@@ -296,18 +296,27 @@
     "notInstalled": {
       "title": "TaskMaster AI CLI nicht installiert",
       "description": "TaskMaster CLI ist erforderlich, um Aufgabenverwaltungsfunktionen zu nutzen. Installiere es, um loszulegen:",
-      "installCommand": "npm install -g task-master-ai",
-      "viewOnGitHub": "Auf GitHub anzeigen",
-      "afterInstallation": "Nach der Installation:",
-      "steps": {
-        "restart": "Diese Anwendung neu starten",
-        "autoAvailable": "TaskMaster-Funktionen werden automatisch verfügbar",
-        "initCommand": "task-master init in deinem Projektverzeichnis verwenden"
-      }
+      "viewOnGitHub": "Auf GitHub anzeigen"
     },
     "settings": {
       "enableLabel": "TaskMaster-Integration aktivieren",
       "enableDescription": "TaskMaster-Aufgaben, Banner und Seitenleisten-Indikatoren in der gesamten Oberfläche anzeigen"
+    },
+    "title": "TaskMaster AI",
+    "description": "KI-gestützte Aufgabenverwaltung per CLI",
+    "install": {
+      "installButton": "Installieren",
+      "reinstallButton": "Neu installieren",
+      "uninstallButton": "Deinstallieren",
+      "installing": "Wird installiert...",
+      "uninstalling": "Wird deinstalliert...",
+      "installed": "Installiert",
+      "notInstalled": "Nicht installiert",
+      "version": "Version: {{version}}",
+      "showLog": "Protokoll anzeigen",
+      "hideLog": "Protokoll ausblenden",
+      "waitingForLog": "Installation – warte auf Ausgabe…",
+      "uninstallWaitingForLog": "Deinstallation – warte auf Ausgabe…"
     }
   },
   "agents": {

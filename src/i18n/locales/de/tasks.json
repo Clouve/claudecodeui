@@ -40,10 +40,19 @@
   "setupModal": {
     "title": "TaskMaster-Einrichtung",
     "subtitle": "Interaktives CLI für {{projectName}}",
-    "willStart": "Die TaskMaster-Initialisierung startet automatisch",
     "completed": "TaskMaster-Einrichtung abgeschlossen! Du kannst dieses Fenster jetzt schließen.",
     "closeButton": "Schließen",
-    "closeContinueButton": "Schließen & Fortfahren"
+    "closeContinueButton": "Schließen & Fortfahren",
+    "confirmDescription": "Dadurch wird TaskMaster AI in \"{{projectName}}\" initialisiert und ein .taskmaster-Verzeichnis mit Standardkonfiguration erstellt.",
+    "initButton": "Initialisieren",
+    "statusInitializing": "Wird initialisiert...",
+    "statusComplete": "Initialisiert",
+    "statusFailed": "Fehlgeschlagen",
+    "initFailed": "Initialisierung fehlgeschlagen",
+    "waitingForOutput": "Initialisierung – warte auf Ausgabe…",
+    "showLog": "Protokoll anzeigen",
+    "hideLog": "Protokoll ausblenden",
+    "retryButton": "Erneut versuchen"
   },
   "helpGuide": {
     "title": "Erste Schritte mit TaskMaster",

@@ -84,7 +84,7 @@
     "openInEditor": "エディタで開く"
   },
   "mainContent": {
-    "loading": "AI Workspace を読み込んでいます",
+    "loading": "AI Workstation を読み込んでいます",
     "settingUpWorkspace": "ワークスペースを準備しています...",
     "chooseProject": "プロジェクトを選択",
     "selectProjectDescription": "サイドバーからプロジェクトを選択して、Claudeとコーディングを始めましょう。各プロジェクトにはチャットセッションとファイル履歴が含まれています。",
@@ -93,7 +93,8 @@
     "createProjectDesktop": "サイドバーのフォルダアイコンをクリックして新しいプロジェクトを作成できます",
     "newSession": "新しいセッション",
     "untitledSession": "無題のセッション",
-    "projectFiles": "プロジェクトファイル"
+    "projectFiles": "プロジェクトファイル",
+    "createNewProject": "新規プロジェクトを作成"
   },
   "fileTree": {
     "loading": "ファイルを読み込んでいます...",
@@ -189,7 +190,9 @@
       "existingInfo": "ワークスペースがプロジェクト一覧に追加され、Claude/Cursorセッションで使用できるようになります。",
       "newWithClone": "このフォルダからリポジトリがクローンされます。",
       "newEmpty": "ワークスペースがプロジェクト一覧に追加され、Claude/Cursorセッションで使用できるようになります。",
-      "cloningRepository": "リポジトリをクローンしています..."
+      "cloningRepository": "リポジトリをクローンしています...",
+      "initTaskmaster": "TaskMasterを初期化",
+      "initTaskmasterHelp": "このワークスペースにタスク管理を設定して、AIで作業の計画と追跡を行えるようにします"
     },
     "buttons": {
       "cancel": "キャンセル",

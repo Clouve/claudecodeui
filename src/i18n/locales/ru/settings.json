@@ -296,18 +296,27 @@
     "notInstalled": {
       "title": "TaskMaster AI CLI не установлен",
       "description": "TaskMaster CLI требуется для использования функций управления задачами. Установите его для начала работы:",
-      "installCommand": "npm install -g task-master-ai",
-      "viewOnGitHub": "Посмотреть на GitHub",
-      "afterInstallation": "После установки:",
-      "steps": {
-        "restart": "Перезапустите это приложение",
-        "autoAvailable": "Функции TaskMaster станут автоматически доступны",
-        "initCommand": "Используйте task-master init в каталоге вашего проекта"
-      }
+      "viewOnGitHub": "Посмотреть на GitHub"
     },
     "settings": {
       "enableLabel": "Включить интеграцию TaskMaster",
       "enableDescription": "Показывать задачи TaskMaster, баннеры и индикаторы боковой панели в интерфейсе"
+    },
+    "title": "TaskMaster AI",
+    "description": "CLI для управления задачами с AI",
+    "install": {
+      "installButton": "Установить",
+      "reinstallButton": "Переустановить",
+      "uninstallButton": "Удалить",
+      "installing": "Установка...",
+      "uninstalling": "Удаление...",
+      "installed": "Установлен",
+      "notInstalled": "Не установлен",
+      "version": "Версия: {{version}}",
+      "showLog": "Показать журнал",
+      "hideLog": "Скрыть журнал",
+      "waitingForLog": "Установка — ожидание вывода…",
+      "uninstallWaitingForLog": "Удаление — ожидание вывода…"
     }
   },
   "agents": {

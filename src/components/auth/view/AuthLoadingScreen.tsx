@@ -12,7 +12,7 @@ export default function AuthLoadingScreen() {
           </div>
         </div>
 
-        <h1 className="mb-2 text-2xl font-bold text-foreground">AI Workspace</h1>
+        <h1 className="mb-2 text-2xl font-bold text-foreground">AI Workstation</h1>
 
         <div className="flex items-center justify-center space-x-2">
           {loadingDotAnimationDelays.map((delay) => (

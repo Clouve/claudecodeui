@@ -1,4 +1,4 @@
-// Service Worker for AI Workspace PWA
+// Service Worker for AI Workstation PWA
 // Cache only manifest (needed for PWA install). HTML and JS are never pre-cached
 // so a rebuild + refresh always picks up the latest assets.
 
@@ -84,7 +84,7 @@ self.addEventListener('push', event => {
   try {
     payload = event.data.json();
   } catch {
-    payload = { title: 'AI Workspace', body: event.data.text() };
+    payload = { title: 'AI Workstation', body: event.data.text() };
   }
 
   const options = {
@@ -97,7 +97,7 @@ self.addEventListener('push', event => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(payload.title || 'AI Workspace', options)
+    self.registration.showNotification(payload.title || 'AI Workstation', options)
   );
 });
 

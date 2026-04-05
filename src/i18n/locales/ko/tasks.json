@@ -40,10 +40,19 @@
   "setupModal": {
     "title": "TaskMaster 설정",
     "subtitle": "{{projectName}}의 대화형 CLI",
-    "willStart": "TaskMaster 초기화가 자동으로 시작됩니다",
     "completed": "TaskMaster 설정이 완료되었습니다! 이 창을 닫아도 됩니다.",
     "closeButton": "닫기",
-    "closeContinueButton": "닫기 & 계속"
+    "closeContinueButton": "닫기 & 계속",
+    "confirmDescription": "\"{{projectName}}\"에 TaskMaster AI를 초기화하고 기본 설정으로 .taskmaster 디렉토리를 생성합니다.",
+    "initButton": "초기화",
+    "statusInitializing": "초기화 중...",
+    "statusComplete": "초기화 완료",
+    "statusFailed": "실패",
+    "initFailed": "초기화 실패",
+    "waitingForOutput": "초기화 중 — 출력 대기 중…",
+    "showLog": "로그 보기",
+    "hideLog": "로그 숨기기",
+    "retryButton": "재시도"
   },
   "helpGuide": {
     "title": "TaskMaster 시작하기",

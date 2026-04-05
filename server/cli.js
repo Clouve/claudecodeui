@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * AI Workspace CLI
+ * AI Workstation CLI
  *
- * Provides command-line utilities for managing AI Workspace
+ * Provides command-line utilities for managing AI Workstation
  *
  * Commands:
  *   (no args)     - Start the server (default)
@@ -84,7 +84,7 @@ function getInstallDir() {
 
 // Show status command
 function showStatus() {
-    console.log(`\n${c.bright('AI Workspace - Status')}\n`);
+    console.log(`\n${c.bright('AI Workstation - Status')}\n`);
     console.log(c.dim('═'.repeat(60)));
 
     // Version info
@@ -141,7 +141,7 @@ function showStatus() {
 function showHelp() {
     console.log(`
 ╔═══════════════════════════════════════════════════════════════╗
-║              AI Workspace - Command Line Tool               ║
+║              AI Workstation - Command Line Tool               ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 Usage:
@@ -149,7 +149,7 @@ Usage:
   cloudcli [command] [options]
 
 Commands:
-  start          Start the AI Workspace server (default)
+  start          Start the AI Workstation server (default)
   status         Show configuration and data locations
   update         Update to the latest version
   help           Show this help information

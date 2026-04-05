@@ -107,7 +107,6 @@
     "tasks": "タスク",
     "notifications": "通知",
     "plugins": "プラグイン"
-
   },
   "notifications": {
     "title": "通知",
@@ -297,18 +296,27 @@
     "notInstalled": {
       "title": "TaskMaster AI CLIがインストールされていません",
       "description": "タスク管理機能を使用するにはTaskMaster CLIが必要です。以下のコマンドでインストールしてください:",
-      "installCommand": "npm install -g task-master-ai",
-      "viewOnGitHub": "GitHubで見る",
-      "afterInstallation": "インストール後:",
-      "steps": {
-        "restart": "このアプリケーションを再起動してください",
-        "autoAvailable": "TaskMaster機能が自動的に利用可能になります",
-        "initCommand": "プロジェクトディレクトリで task-master init を実行してください"
-      }
+      "viewOnGitHub": "GitHubで見る"
     },
     "settings": {
       "enableLabel": "TaskMaster統合を有効にする",
       "enableDescription": "インターフェース全体でTaskMasterのタスク、バナー、サイドバーインジケータを表示します"
+    },
+    "title": "TaskMaster AI",
+    "description": "AI搭載タスク管理CLI",
+    "install": {
+      "installButton": "インストール",
+      "reinstallButton": "再インストール",
+      "uninstallButton": "アンインストール",
+      "installing": "インストール中...",
+      "uninstalling": "アンインストール中...",
+      "installed": "インストール済み",
+      "notInstalled": "未インストール",
+      "version": "バージョン: {{version}}",
+      "showLog": "ログを表示",
+      "hideLog": "ログを非表示",
+      "waitingForLog": "インストール中 — 出力を待っています…",
+      "uninstallWaitingForLog": "アンインストール中 — 出力を待っています…"
     }
   },
   "agents": {

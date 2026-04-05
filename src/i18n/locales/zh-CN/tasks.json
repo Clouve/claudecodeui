@@ -40,10 +40,19 @@
   "setupModal": {
     "title": "TaskMaster 设置",
     "subtitle": "{{projectName}} 的交互式 CLI",
-    "willStart": "TaskMaster 初始化将自动开始",
     "completed": "TaskMaster 设置完成！您现在可以关闭此窗口。",
     "closeButton": "关闭",
-    "closeContinueButton": "关闭并继续"
+    "closeContinueButton": "关闭并继续",
+    "confirmDescription": "这将在\"{{projectName}}\"中初始化 TaskMaster AI，创建包含默认配置的 .taskmaster 目录。",
+    "initButton": "初始化",
+    "statusInitializing": "初始化中...",
+    "statusComplete": "已初始化",
+    "statusFailed": "失败",
+    "initFailed": "初始化失败",
+    "waitingForOutput": "初始化中 — 等待输出…",
+    "showLog": "显示日志",
+    "hideLog": "隐藏日志",
+    "retryButton": "重试"
   },
   "helpGuide": {
     "title": "开始使用 TaskMaster",

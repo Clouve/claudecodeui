@@ -84,7 +84,7 @@
     "openInEditor": "Im Editor öffnen"
   },
   "mainContent": {
-    "loading": "AI Workspace wird geladen",
+    "loading": "AI Workstation wird geladen",
     "settingUpWorkspace": "Arbeitsbereich wird eingerichtet...",
     "chooseProject": "Projekt auswählen",
     "selectProjectDescription": "Wähl ein Projekt aus der Seitenleiste, um mit Claude zu programmieren. Jedes Projekt enthält deine Chat-Sitzungen und den Dateiverlauf.",
@@ -93,7 +93,8 @@
     "createProjectDesktop": "Erstell ein neues Projekt, indem du auf das Ordnersymbol in der Seitenleiste klickst",
     "newSession": "Neue Sitzung",
     "untitledSession": "Unbenannte Sitzung",
-    "projectFiles": "Projektdateien"
+    "projectFiles": "Projektdateien",
+    "createNewProject": "Neues Projekt erstellen"
   },
   "fileTree": {
     "loading": "Dateien werden geladen...",
@@ -189,7 +190,9 @@
       "existingInfo": "Der Arbeitsbereich wird zur Projektliste hinzugefügt und steht für Claude/Cursor-Sitzungen zur Verfügung.",
       "newWithClone": "Das Repository wird aus diesem Ordner geklont.",
       "newEmpty": "Der Arbeitsbereich wird zur Projektliste hinzugefügt und steht für Claude/Cursor-Sitzungen zur Verfügung.",
-      "cloningRepository": "Repository wird geklont..."
+      "cloningRepository": "Repository wird geklont...",
+      "initTaskmaster": "TaskMaster initialisieren",
+      "initTaskmasterHelp": "Aufgabenverwaltung für diesen Arbeitsbereich einrichten, um Arbeit mit KI zu planen und zu verfolgen"
     },
     "buttons": {
       "cancel": "Abbrechen",

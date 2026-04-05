@@ -40,10 +40,19 @@
   "setupModal": {
     "title": "TaskMasterのセットアップ",
     "subtitle": "{{projectName}}のインタラクティブCLI",
-    "willStart": "TaskMasterの初期化が自動的に開始されます",
     "completed": "TaskMasterのセットアップが完了しました！このウィンドウを閉じることができます。",
     "closeButton": "閉じる",
-    "closeContinueButton": "閉じて続ける"
+    "closeContinueButton": "閉じて続ける",
+    "confirmDescription": "\"{{projectName}}\"にTaskMaster AIを初期化し、デフォルト設定で.taskmasterディレクトリを作成します。",
+    "initButton": "初期化",
+    "statusInitializing": "初期化中...",
+    "statusComplete": "初期化完了",
+    "statusFailed": "失敗",
+    "initFailed": "初期化に失敗しました",
+    "waitingForOutput": "初期化中 — 出力を待っています…",
+    "showLog": "ログを表示",
+    "hideLog": "ログを非表示",
+    "retryButton": "再試行"
   },
   "helpGuide": {
     "title": "TaskMasterを始める",

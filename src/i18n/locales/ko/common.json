@@ -84,7 +84,7 @@
     "openInEditor": "에디터에서 열기"
   },
   "mainContent": {
-    "loading": "AI Workspace 로딩 중",
+    "loading": "AI Workstation 로딩 중",
     "settingUpWorkspace": "워크스페이스 설정 중...",
     "chooseProject": "프로젝트 선택",
     "selectProjectDescription": "사이드바에서 프로젝트를 선택하여 Claude와 코딩을 시작하세요. 각 프로젝트에는 채팅 세션과 파일 히스토리가 포함됩니다.",
@@ -93,7 +93,8 @@
     "createProjectDesktop": "사이드바의 폴더 아이콘을 클릭하여 새 프로젝트를 생성하세요",
     "newSession": "새 세션",
     "untitledSession": "제목 없는 세션",
-    "projectFiles": "프로젝트 파일"
+    "projectFiles": "프로젝트 파일",
+    "createNewProject": "새 프로젝트 생성"
   },
   "fileTree": {
     "loading": "파일 로딩 중...",
@@ -189,7 +190,9 @@
       "existingInfo": "워크스페이스가 프로젝트 목록에 추가되며 Claude/Cursor 세션에서 사용할 수 있습니다.",
       "newWithClone": "이 폴더에 저장소가 clone됩니다.",
       "newEmpty": "워크스페이스가 프로젝트 목록에 추가되며 Claude/Cursor 세션에서 사용할 수 있습니다.",
-      "cloningRepository": "저장소 clone 중..."
+      "cloningRepository": "저장소 clone 중...",
+      "initTaskmaster": "TaskMaster 초기화",
+      "initTaskmasterHelp": "이 워크스페이스에 작업 관리를 설정하여 AI로 작업을 계획하고 추적할 수 있습니다"
     },
     "buttons": {
       "cancel": "취소",

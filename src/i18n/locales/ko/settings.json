@@ -107,7 +107,6 @@
     "tasks": "작업",
     "notifications": "알림",
     "plugins": "플러그인"
-
   },
   "notifications": {
     "title": "알림",
@@ -297,18 +296,27 @@
     "notInstalled": {
       "title": "TaskMaster AI CLI가 설치되지 않았습니다",
       "description": "작업 관리 기능을 사용하려면 TaskMaster CLI가 필요합니다. 시작하려면 설치하세요:",
-      "installCommand": "npm install -g task-master-ai",
-      "viewOnGitHub": "GitHub에서 보기",
-      "afterInstallation": "설치 후:",
-      "steps": {
-        "restart": "이 애플리케이션을 재시작하세요",
-        "autoAvailable": "TaskMaster 기능이 자동으로 활성화됩니다",
-        "initCommand": "프로젝트 디렉토리에서 task-master init을 사용하세요"
-      }
+      "viewOnGitHub": "GitHub에서 보기"
     },
     "settings": {
       "enableLabel": "TaskMaster 통합 활성화",
       "enableDescription": "인터페이스 전체에 TaskMaster 작업, 배너 및 사이드바 표시"
+    },
+    "title": "TaskMaster AI",
+    "description": "AI 기반 작업 관리 CLI",
+    "install": {
+      "installButton": "설치",
+      "reinstallButton": "재설치",
+      "uninstallButton": "삭제",
+      "installing": "설치 중...",
+      "uninstalling": "삭제 중...",
+      "installed": "설치됨",
+      "notInstalled": "미설치",
+      "version": "버전: {{version}}",
+      "showLog": "로그 보기",
+      "hideLog": "로그 숨기기",
+      "waitingForLog": "설치 중 — 출력 대기 중…",
+      "uninstallWaitingForLog": "삭제 중 — 출력 대기 중…"
     }
   },
   "agents": {

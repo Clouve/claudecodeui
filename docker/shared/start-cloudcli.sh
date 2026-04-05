@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Auto-start AI Workspace server in background if not already running.
+# Auto-start AI Workstation server in background if not already running.
 # This script is sourced from ~/.bashrc on sandbox shell open.
 
 if ! pgrep -f "server/index.js" > /dev/null 2>&1; then
@@ -13,7 +13,7 @@ if ! pgrep -f "server/index.js" > /dev/null 2>&1; then
   disown
 
   echo ""
-  echo "  AI Workspace is starting on port 3001..."
+  echo "  AI Workstation is starting on port 3001..."
   echo ""
   echo "  To access the web UI, forward the port:"
   echo "    sbx ports \$(hostname) --publish 3001:3001"

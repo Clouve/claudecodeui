@@ -188,6 +188,12 @@
       "codex": "准备好使用带有 {{model}} 的 Codex。请在下方开始输入您的消息。",
       "gemini": "准备好使用带有 {{model}} 的 Gemini。请在下方开始输入您的消息。",
       "default": "请在上方选择一个提供者以开始"
+    },
+    "noProviders": {
+      "title": "未安装 AI 客户端",
+      "description": "请安装至少一个 AI 客户端以开始使用。",
+      "openSettings": "前往设置",
+      "moreAvailable": "还有更多 AI 客户端可供安装。"
     }
   },
   "session": {
