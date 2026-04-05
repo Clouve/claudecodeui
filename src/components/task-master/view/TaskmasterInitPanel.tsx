@@ -15,6 +15,7 @@ type TaskmasterInitPanelProps = {
   projectDisplayName: string;
   isBusy?: boolean;
   hideIdlePrompt?: boolean;
+  hideStatusBadge?: boolean;
   className?: string;
 };
 
@@ -29,6 +30,7 @@ export default function TaskmasterInitPanel({
   projectDisplayName,
   isBusy = status === 'initializing',
   hideIdlePrompt = false,
+  hideStatusBadge = false,
   className,
 }: TaskmasterInitPanelProps) {
   const { t } = useTranslation('tasks');
@@ -68,21 +70,12 @@ export default function TaskmasterInitPanel({
 
   return (
     <div className={cn('space-y-4', className)}>
-      {statusBadge && <div>{statusBadge}</div>}
+      {statusBadge && !hideStatusBadge && <div className="flex justify-end">{statusBadge}</div>}
 
       {/* Idle state — confirmation prompt */}
       {status === 'idle' && !hideIdlePrompt && (
-        <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+        <div className="text-sm text-gray-600 dark:text-gray-400">
           <p>{t('setupModal.confirmDescription', { projectName: projectDisplayName })}</p>
-          <button
-            onClick={onRunInit}
-            className="inline-flex items-center gap-2 rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 active:bg-teal-900"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
-            {t('setupModal.initButton')}
-          </button>
         </div>
       )}
 
@@ -133,17 +126,30 @@ export default function TaskmasterInitPanel({
             {t('setupModal.retryButton')}
           </button>
         )}
-        <button
-          onClick={onClose}
-          className={cn(
-            'px-4 py-2 text-sm font-medium rounded-md transition-colors',
-            status === 'success'
-              ? 'bg-green-600 hover:bg-green-700 text-white'
-              : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600',
-          )}
-        >
-          {status === 'success' ? t('setupModal.closeContinueButton') : t('setupModal.closeButton')}
-        </button>
+        {status === 'idle' && !hideIdlePrompt && (
+          <button
+            onClick={onRunInit}
+            className="inline-flex items-center gap-2 rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 active:bg-teal-900"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            {t('setupModal.initButton')}
+          </button>
+        )}
+        {(status === 'success' || status === 'error') && (
+          <button
+            onClick={onClose}
+            className={cn(
+              'px-4 py-2 text-sm font-medium rounded-md transition-colors',
+              status === 'success'
+                ? 'bg-green-600 hover:bg-green-700 text-white'
+                : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600',
+            )}
+          >
+            {status === 'success' ? t('setupModal.closeContinueButton') : t('setupModal.closeButton')}
+          </button>
+        )}
       </div>
     </div>
   );

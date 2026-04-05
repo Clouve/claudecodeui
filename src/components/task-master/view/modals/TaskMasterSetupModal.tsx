@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Plus } from 'lucide-react';
+import { Check, Loader2, Plus, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTaskMaster } from '../../context/TaskMasterContext';
 import { useTaskmasterInit } from '../../hooks/useTaskmasterInit';
@@ -52,19 +52,39 @@ export default function TaskMasterSetupModal({ isOpen, project, onClose, onAfter
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
               </svg>
             </div>
-            <div>
+            <div className="flex-1">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('setupModal.title')}</h2>
               <p className="text-sm text-gray-500 dark:text-gray-400">{t('setupModal.subtitle', { projectName: project.displayName })}</p>
             </div>
           </div>
 
-          <button
-            onClick={closeModal}
-            className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
-            title="Close"
-          >
-            <Plus className="h-5 w-5 rotate-45" />
-          </button>
+          <div className="flex items-center gap-2">
+            {status === 'initializing' && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                {t('setupModal.statusInitializing')}
+              </span>
+            )}
+            {status === 'success' && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                <Check className="h-3 w-3" />
+                {t('setupModal.statusComplete')}
+              </span>
+            )}
+            {status === 'error' && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                <X className="h-3 w-3" />
+                {t('setupModal.statusFailed')}
+              </span>
+            )}
+            <button
+              onClick={closeModal}
+              className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+              title="Close"
+            >
+              <Plus className="h-5 w-5 rotate-45" />
+            </button>
+          </div>
         </div>
 
         {/* Content + Footer via shared panel */}
@@ -78,6 +98,7 @@ export default function TaskMasterSetupModal({ isOpen, project, onClose, onAfter
           onRunInit={runInit}
           onClose={closeModal}
           projectDisplayName={project.displayName}
+          hideStatusBadge
         />
       </div>
     </div>
