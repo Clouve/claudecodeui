@@ -270,12 +270,12 @@ function ChatInterface({
 
   if (!selectedProject) {
     const selectedProviderLabel =
-      provider === 'cursor'
-        ? t('messageTypes.cursor')
+      provider === 'gemini'
+        ? t('messageTypes.gemini')
         : provider === 'codex'
           ? t('messageTypes.codex')
-          : provider === 'gemini'
-            ? t('messageTypes.gemini')
+          : provider === 'cursor'
+            ? t('messageTypes.cursor')
             : t('messageTypes.claude');
 
     return (
@@ -398,12 +398,12 @@ function ChatInterface({
           isInputFocused={isInputFocused}
           placeholder={t('input.placeholder', {
             provider:
-              provider === 'cursor'
-                ? t('messageTypes.cursor')
+              provider === 'gemini'
+                ? t('messageTypes.gemini')
                 : provider === 'codex'
                   ? t('messageTypes.codex')
-                  : provider === 'gemini'
-                    ? t('messageTypes.gemini')
+                  : provider === 'cursor'
+                    ? t('messageTypes.cursor')
                     : t('messageTypes.claude'),
           })}
           isTextareaExpanded={isTextareaExpanded}
