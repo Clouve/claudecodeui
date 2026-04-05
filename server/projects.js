@@ -486,7 +486,8 @@ async function getProjects(progressCallback = null) {
         const uiSessions = sessionManager.getProjectSessions(actualProjectDir) || [];
         const cliSessions = await getGeminiCliSessions(actualProjectDir);
         const uiIds = new Set(uiSessions.map(s => s.id));
-        const mergedGemini = [...uiSessions, ...cliSessions.filter(s => !uiIds.has(s.id))];
+        const uiCliIds = new Set(uiSessions.map(s => s.cliSessionId).filter(Boolean));
+        const mergedGemini = [...uiSessions, ...cliSessions.filter(s => !uiIds.has(s.id) && !uiCliIds.has(s.id))];
         project.geminiSessions = mergedGemini;
       } catch (e) {
         console.warn(`Could not load Gemini sessions for project ${entry.name}:`, e.message);
@@ -593,7 +594,8 @@ async function getProjects(progressCallback = null) {
         const uiSessions = sessionManager.getProjectSessions(actualProjectDir) || [];
         const cliSessions = await getGeminiCliSessions(actualProjectDir);
         const uiIds = new Set(uiSessions.map(s => s.id));
-        project.geminiSessions = [...uiSessions, ...cliSessions.filter(s => !uiIds.has(s.id))];
+        const uiCliIds = new Set(uiSessions.map(s => s.cliSessionId).filter(Boolean));
+        project.geminiSessions = [...uiSessions, ...cliSessions.filter(s => !uiIds.has(s.id) && !uiCliIds.has(s.id))];
       } catch (e) {
         console.warn(`Could not load Gemini sessions for manual project ${projectName}:`, e.message);
       }
@@ -1182,6 +1184,11 @@ async function deleteProject(projectName, force = false) {
       projectPath = await extractProjectDirectory(projectName);
     }
 
+    // Remove from project config FIRST so that file-watcher–triggered
+    // getProjects() calls won't re-add the project to the UI.
+    delete config[projectName];
+    await saveProjectConfig(config);
+
     // Remove the project directory (includes all Claude sessions)
     await fs.rm(projectDir, { recursive: true, force: true });
 
@@ -1209,10 +1216,6 @@ async function deleteProject(projectName, force = false) {
         // Cursor dir may not exist, ignore
       }
     }
-
-    // Remove from project config
-    delete config[projectName];
-    await saveProjectConfig(config);
 
     return true;
   } catch (error) {

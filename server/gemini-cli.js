@@ -139,12 +139,15 @@ async function spawnGemini(command, options = {}, ws) {
     args.push('--output-format', 'stream-json');
 
     // Handle approval modes and allowed tools
-    if (settings.skipPermissions || options.skipPermissions || permissionMode === 'yolo') {
-        args.push('--yolo');
-    } else if (permissionMode === 'auto_edit') {
+    // Default to --yolo because stdin is closed and the CLI cannot prompt for
+    // interactive tool approvals.  Without this flag, write/execute tools
+    // (write_file, run_shell_command, etc.) are not registered by the CLI.
+    if (permissionMode === 'auto_edit') {
         args.push('--approval-mode', 'auto_edit');
     } else if (permissionMode === 'plan') {
         args.push('--approval-mode', 'plan');
+    } else {
+        args.push('--yolo');
     }
 
     if (settings.allowedTools && settings.allowedTools.length > 0) {
@@ -236,7 +239,8 @@ async function spawnGemini(command, options = {}, ws) {
 
         startTimeout();
 
-        // Save user message to session when starting
+        // Save user message to session when starting (resumed sessions only;
+        // new sessions save the user message after session creation below)
         if (command && capturedSessionId) {
             sessionManager.addMessage(capturedSessionId, 'user', command);
         }
@@ -333,11 +337,12 @@ async function spawnGemini(command, options = {}, ws) {
         geminiProcess.stderr.on('data', (data) => {
             const errorMsg = data.toString();
 
-            // Filter out deprecation warnings and "Loaded cached credentials" message
+            // Filter out deprecation warnings, credential noise, and startup diagnostics
             if (errorMsg.includes('[DEP0040]') ||
                 errorMsg.includes('DeprecationWarning') ||
                 errorMsg.includes('--trace-deprecation') ||
-                errorMsg.includes('Loaded cached credentials')) {
+                errorMsg.includes('Loaded cached credentials') ||
+                errorMsg.includes('[STARTUP]')) {
                 return;
             }
 

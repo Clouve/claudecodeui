@@ -82,6 +82,7 @@ class SessionManager {
       if (session.projectPath === projectPath) {
         sessions.push({
           id: session.id,
+          cliSessionId: session.cliSessionId || null,
           summary: this.getSessionSummary(session),
           messageCount: session.messages.length,
           lastActivity: session.lastActivity

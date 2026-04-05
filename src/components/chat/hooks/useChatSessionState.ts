@@ -148,19 +148,17 @@ export function useChatSessionState({
     sessionStore.setActiveSession(activeSessionId);
   }
 
-  // When a real session ID arrives and we have a pending user message, flush it to the store
+  // Track activeSessionId changes so we know when a new session was assigned.
   const prevActiveSessionRef = useRef<string | null>(null);
-  if (activeSessionId && activeSessionId !== prevActiveSessionRef.current && pendingUserMessage) {
-    const prov = (localStorage.getItem('selected-provider') as SessionProvider) || 'claude';
-    const normalized = chatMessageToNormalized(pendingUserMessage, activeSessionId, prov);
-    if (normalized) {
-      sessionStore.appendRealtime(activeSessionId, normalized);
-    }
-    setPendingUserMessage(null);
-  }
   prevActiveSessionRef.current = activeSessionId;
 
   const storeMessages = activeSessionId ? sessionStore.getMessages(activeSessionId) : [];
+
+  // Clear pendingUserMessage once the store already contains a user message
+  // (either from realtime streaming or a server fetch) to avoid duplicates.
+  if (pendingUserMessage && storeMessages.some(m => m.kind === 'text' && m.role === 'user')) {
+    setPendingUserMessage(null);
+  }
 
   // Reset viewHiddenCount when store messages change
   const prevStoreLenRef = useRef(0);
@@ -171,9 +169,9 @@ export function useChatSessionState({
 
   const chatMessages = useMemo(() => {
     const all = normalizedToChatMessages(storeMessages);
-    // Show pending user message when no session data exists yet (new session, pre-backend-response)
-    if (pendingUserMessage && all.length === 0) {
-      return [pendingUserMessage];
+    // Show pending user message until the store has one (new session, pre-backend-response)
+    if (pendingUserMessage) {
+      return [pendingUserMessage, ...all];
     }
     if (viewHiddenCount > 0 && viewHiddenCount < all.length) return all.slice(0, -viewHiddenCount);
     return all;

@@ -10,7 +10,7 @@ import { NextTaskBanner } from "../../../task-master";
 
 type ProviderSelectionEmptyStateProps = {
   selectedSession: ProjectSession | null;
-  currentSessionId: string | null;
+  currentSessionId?: string | null;
   provider: SessionProvider;
   setProvider: (next: SessionProvider) => void;
   textareaRef: React.RefObject<HTMLTextAreaElement>;
@@ -87,7 +87,6 @@ function getModelValue(
 
 export default function ProviderSelectionEmptyState({
   selectedSession,
-  currentSessionId,
   provider,
   setProvider,
   textareaRef,
@@ -188,7 +187,7 @@ export default function ProviderSelectionEmptyState({
   const currentModel = rawModel || modelConfig.default || modelConfig.options[0]?.value || '';
 
   /* ── New session — provider picker ── */
-  if (!selectedSession && !currentSessionId) {
+  if (!selectedSession) {
     return (
       <div className="flex h-full items-center justify-center px-4">
         <div className="w-full max-w-md">

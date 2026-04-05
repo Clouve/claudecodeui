@@ -10,6 +10,10 @@ import type {
   ProjectsUpdatedMessage,
 } from '../types/app';
 
+// Module-level set so it survives React component remounts (e.g. caused by
+// cascading render errors when a project is deleted while its session is active).
+const recentlyDeletedProjects = new Set<string>();
+
 type UseProjectsStateArgs = {
   sessionId?: string;
   navigate: NavigateFunction;
@@ -156,13 +160,18 @@ export function useProjectsState({
 
   const loadingProgressTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+
   const fetchProjects = useCallback(async ({ showLoadingState = true }: FetchProjectsOptions = {}) => {
     try {
       if (showLoadingState) {
         setIsLoadingProjects(true);
       }
       const response = await api.projects();
-      const projectData = (await response.json()) as Project[];
+      let projectData = (await response.json()) as Project[];
+
+      if (recentlyDeletedProjects.size > 0) {
+        projectData = projectData.filter((p) => !recentlyDeletedProjects.has(p.name));
+      }
 
       setProjects((prevProjects) => {
         if (prevProjects.length === 0) {
@@ -254,7 +263,10 @@ export function useProjectsState({
       (selectedSession && activeSessions.has(selectedSession.id)) ||
       (activeSessions.size > 0 && Array.from(activeSessions).some((id) => id.startsWith('new-session-')));
 
-    const updatedProjects = projectsMessage.projects;
+    const deleted = recentlyDeletedProjects;
+    const updatedProjects = deleted.size > 0
+      ? projectsMessage.projects.filter((p: Project) => !deleted.has(p.name))
+      : projectsMessage.projects;
 
     if (
       hasActiveSession &&
@@ -436,6 +448,9 @@ export function useProjectsState({
         prevProjects.map((project) => ({
           ...project,
           sessions: project.sessions?.filter((session) => session.id !== sessionIdToDelete) ?? [],
+          geminiSessions: project.geminiSessions?.filter((session) => session.id !== sessionIdToDelete) ?? [],
+          codexSessions: project.codexSessions?.filter((session) => session.id !== sessionIdToDelete) ?? [],
+          cursorSessions: project.cursorSessions?.filter((session) => session.id !== sessionIdToDelete) ?? [],
           sessionMeta: {
             ...project.sessionMeta,
             total: Math.max(0, (project.sessionMeta?.total as number | undefined ?? 0) - 1),
@@ -499,6 +514,10 @@ export function useProjectsState({
         setSelectedSession(null);
         navigate('/');
       }
+
+      // Prevent queued projects_updated events from re-adding this project.
+      recentlyDeletedProjects.add(projectName);
+      setTimeout(() => recentlyDeletedProjects.delete(projectName), 5000);
 
       setProjects((prevProjects) => prevProjects.filter((project) => project.name !== projectName));
     },
