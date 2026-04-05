@@ -71,6 +71,9 @@ RUN printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d \
         ca-certificates \
         curl \
         git \
+        make \
+        g++ \
+        python3 \
         sudo \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
