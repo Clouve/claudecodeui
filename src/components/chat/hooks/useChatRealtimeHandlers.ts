@@ -180,6 +180,23 @@ export function useChatRealtimeHandlers({
 
     const sid = msg.sessionId || activeViewSessionId;
 
+    // Auto-detect new session: if we're waiting for a new session and any message
+    // arrives with a real session ID, perform session binding immediately.
+    // This handles the case where `session_created` gets dropped by React state
+    // batching (multiple WebSocket messages arriving before React flushes).
+    if (
+      sid &&
+      (!currentSessionId || currentSessionId.startsWith('new-session-')) &&
+      pendingViewSessionRef.current &&
+      !pendingViewSessionRef.current.sessionId
+    ) {
+      sessionStorage.setItem('pendingSessionId', sid);
+      pendingViewSessionRef.current.sessionId = sid;
+      setCurrentSessionId(sid);
+      onReplaceTemporarySession?.(sid);
+      onNavigateToSession?.(sid);
+    }
+
     // --- Streaming: buffer for performance ---
     if (msg.kind === 'stream_delta') {
       const text = msg.content || '';
@@ -228,7 +245,11 @@ export function useChatRealtimeHandlers({
         const newSessionId = msg.newSessionId;
         if (!newSessionId) break;
 
-        if (!currentSessionId || currentSessionId.startsWith('new-session-')) {
+        // Auto-bind (above) may have already handled session binding for this ID.
+        // Only run the full binding when it hasn't been done yet.
+        const alreadyBound = pendingViewSessionRef.current?.sessionId === newSessionId;
+
+        if (!alreadyBound && (!currentSessionId || currentSessionId.startsWith('new-session-'))) {
           sessionStorage.setItem('pendingSessionId', newSessionId);
           if (pendingViewSessionRef.current && !pendingViewSessionRef.current.sessionId) {
             pendingViewSessionRef.current.sessionId = newSessionId;
@@ -239,7 +260,17 @@ export function useChatRealtimeHandlers({
             prev.map((r) => (r.sessionId ? r : { ...r, sessionId: newSessionId })),
           );
         }
-        onNavigateToSession?.(newSessionId);
+
+        // Always update pending permission requests with the session ID
+        if (alreadyBound) {
+          setPendingPermissionRequests((prev) =>
+            prev.map((r) => (r.sessionId ? r : { ...r, sessionId: newSessionId })),
+          );
+        }
+
+        if (!alreadyBound) {
+          onNavigateToSession?.(newSessionId);
+        }
         break;
       }
 
@@ -280,6 +311,17 @@ export function useChatRealtimeHandlers({
             onNavigateToSession?.(actualId);
           }
           sessionStorage.removeItem('pendingSessionId');
+          if (window.refreshProjects) {
+            setTimeout(() => window.refreshProjects?.(), 500);
+          }
+        }
+
+        // If the server reports a different actual session ID (e.g., Codex SDK
+        // resolves the real thread ID only after streaming), navigate to it so
+        // the URL matches the persisted session on disk.
+        if (msg.actualSessionId && currentSessionId && msg.actualSessionId !== currentSessionId) {
+          setCurrentSessionId(msg.actualSessionId);
+          onNavigateToSession?.(msg.actualSessionId);
           if (window.refreshProjects) {
             setTimeout(() => window.refreshProjects?.(), 500);
           }

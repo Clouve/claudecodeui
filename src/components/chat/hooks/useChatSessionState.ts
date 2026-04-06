@@ -307,6 +307,21 @@ export function useChatSessionState({
   // Main session loading effect — store-based
   useEffect(() => {
     if (!selectedSession || !selectedProject) {
+      // Don't reset an actively streaming session just because selectedSession
+      // is null.  This happens when a new session's provisional ID (e.g.
+      // "codex-<timestamp>") doesn't match the real UUID on disk yet — a
+      // projects_updated event refreshes selectedProject but selectedSession
+      // stays null because no project session matches the URL.  Resetting here
+      // would wipe currentSessionId and kill the in-flight stream.
+      const hasActiveStream = Boolean(
+        currentSessionId &&
+        !currentSessionId.startsWith('new-session-') &&
+        pendingViewSessionRef.current,
+      );
+      if (hasActiveStream) {
+        return;
+      }
+
       resetStreamingState();
       pendingViewSessionRef.current = null;
       setClaudeStatus(null);
