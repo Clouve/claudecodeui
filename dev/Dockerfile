@@ -43,8 +43,7 @@ RUN printf 'SERVER_PORT=8080\nHOST=0.0.0.0\n' > .env \
     && npm run build \
     && npm prune --production \
     && npm cache clean --force \
-    && rm -rf .git .husky .github dev src docs scripts \
-              index.html release.sh \
+    && rm -rf .git dev src docs scripts index.html \
               eslint.config.js commitlint.config.js \
               postcss.config.js tailwind.config.js tsconfig.json
 

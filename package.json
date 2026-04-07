@@ -14,7 +14,6 @@
     "scripts/",
     "README.md"
   ],
-  "homepage": "https://cloudcli.ai",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Clouve/ai-workspace.git"
@@ -41,7 +40,6 @@
     "claude code",
     "claude-code",
     "ai-workspace",
-    "cloudcli",
     "codex",
     "gemini",
     "gemini-cli",
@@ -55,8 +53,7 @@
     "ui",
     "mobile IDE"
   ],
-  "author": "CloudCLI UI Contributors",
-  "license": "AGPL-3.0-or-later",
+  "author": "Clouve Inc.",
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.59",
     "@codemirror/lang-css": "^6.3.1",

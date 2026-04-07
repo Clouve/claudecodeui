@@ -2,7 +2,7 @@
 set -eo pipefail
 
 # =============================================================================
-# Start the CloudCLI development container
+# Start the AI Workstation development container
 # =============================================================================
 # Usage:  ./dev/start.sh [dev|prod] [docker run flags...]
 #

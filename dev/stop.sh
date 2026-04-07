@@ -2,7 +2,7 @@
 set -eo pipefail
 
 # =============================================================================
-# Stop the CloudCLI development container
+# Stop the AI Workstation development container
 # =============================================================================
 # Usage: ./dev/stop.sh [--clean|-c]
 #

@@ -2,7 +2,7 @@
 set -eo pipefail
 
 # =============================================================================
-# Build the CloudCLI development Docker image
+# Build the AI Workstation development Docker image
 # =============================================================================
 # Usage:  ./dev/build.sh [docker build flags...]
 # Example: ./dev/build.sh --no-cache

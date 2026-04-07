@@ -86,7 +86,7 @@ export default function SetupForm() {
       title="Welcome to AI Workstation"
       description="Set up your account to get started"
       footerText="This is a single-user system. Only one account can be created."
-      logo={<img src={`${BASE_PATH}/logo.svg`} alt="CloudCLI" className="h-16 w-16" />}
+      logo={<img src={`${BASE_PATH}/logo.svg`} alt="AI Workstation" className="h-16 w-16" />}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <AuthInputField
