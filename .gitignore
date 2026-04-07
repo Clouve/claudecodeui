@@ -140,3 +140,4 @@ tasks/
 .worktrees/
 
 .playwright-mcp
+.husky
