@@ -202,94 +202,72 @@ async function checkClaudeCredentials() {
 }
 
 function checkCursorStatus() {
+  // Strip ANSI escape sequences so we can match against clean text.
+  // eslint-disable-next-line no-control-regex
+  const stripAnsi = (s) => s.replace(/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '');
+
   return new Promise((resolve) => {
     let processCompleted = false;
 
-    const timeout = setTimeout(() => {
-      if (!processCompleted) {
-        processCompleted = true;
-        if (childProcess) {
-          childProcess.kill();
-        }
-        resolve({
-          authenticated: false,
-          email: null,
-          error: 'Command timeout'
-        });
+    const settle = (result) => {
+      if (processCompleted) return;
+      processCompleted = true;
+      clearTimeout(timeout);
+      if (childProcess) {
+        try { childProcess.kill(); } catch { /* already exited */ }
       }
-    }, 5000);
+      resolve(result);
+    };
+
+    const timeout = setTimeout(() => {
+      settle({ authenticated: false, email: null, error: 'Command timeout' });
+    }, 15_000);
 
     let childProcess;
     try {
       childProcess = spawn('cursor-agent', ['status']);
     } catch (err) {
-      clearTimeout(timeout);
-      processCompleted = true;
-      resolve({
-        authenticated: false,
-        email: null,
-        error: 'Cursor CLI not found or not installed'
-      });
+      settle({ authenticated: false, email: null, error: 'Cursor CLI not found or not installed' });
       return;
     }
 
     let stdout = '';
-    let stderr = '';
+
+    // Parse stdout as it streams — `agent status` prints its result quickly
+    // but the process may linger for 30+ seconds before exiting.
+    const tryResolveFromOutput = () => {
+      const clean = stripAnsi(stdout);
+      const emailMatch = clean.match(/Logged in as ([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i);
+      if (emailMatch) {
+        settle({ authenticated: true, email: emailMatch[1], output: clean });
+        return;
+      }
+      if (/logged in/i.test(clean) && !/not logged in/i.test(clean)) {
+        settle({ authenticated: true, email: 'Logged in', output: clean });
+        return;
+      }
+      if (/not logged in/i.test(clean)) {
+        settle({ authenticated: false, email: null, error: 'Not logged in' });
+      }
+    };
 
     childProcess.stdout.on('data', (data) => {
       stdout += data.toString();
+      tryResolveFromOutput();
     });
 
-    childProcess.stderr.on('data', (data) => {
-      stderr += data.toString();
-    });
+    childProcess.stderr.on('data', () => { /* ignore */ });
 
     childProcess.on('close', (code) => {
-      if (processCompleted) return;
-      processCompleted = true;
-      clearTimeout(timeout);
-
+      // Process exited before we matched — resolve based on exit code.
       if (code === 0) {
-        const emailMatch = stdout.match(/Logged in as ([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i);
-
-        if (emailMatch) {
-          resolve({
-            authenticated: true,
-            email: emailMatch[1],
-            output: stdout
-          });
-        } else if (stdout.includes('Logged in')) {
-          resolve({
-            authenticated: true,
-            email: 'Logged in',
-            output: stdout
-          });
-        } else {
-          resolve({
-            authenticated: false,
-            email: null,
-            error: 'Not logged in'
-          });
-        }
-      } else {
-        resolve({
-          authenticated: false,
-          email: null,
-          error: stderr || 'Not logged in'
-        });
+        tryResolveFromOutput();
       }
+      settle({ authenticated: false, email: null, error: 'Not logged in' });
     });
 
-    childProcess.on('error', (err) => {
-      if (processCompleted) return;
-      processCompleted = true;
-      clearTimeout(timeout);
-
-      resolve({
-        authenticated: false,
-        email: null,
-        error: 'Cursor CLI not found or not installed'
-      });
+    childProcess.on('error', () => {
+      settle({ authenticated: false, email: null, error: 'Cursor CLI not found or not installed' });
     });
   });
 }

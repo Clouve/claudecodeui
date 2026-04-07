@@ -187,9 +187,30 @@ async function fetchGeminiModels(apiKey) {
   return options.length > 0 ? options : null;
 }
 
+/** Strip ANSI escape sequences from a string. */
+function stripAnsi(str) {
+  // eslint-disable-next-line no-control-regex
+  return str.replace(/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '');
+}
+
+/** Lines that are CLI chrome, not model entries. */
+const CURSOR_NOISE_PATTERNS = [
+  /^loading\b/i,
+  /^no models\b/i,
+  /^error\b/i,
+  /^authentication required/i,
+  /^available models/i,
+  /^tip:/i,
+  /^\s*$/,
+];
+
 /**
  * Discover Cursor models via CLI.
- * Tries `agent models --list-models` and parses the output.
+ * Runs `agent models` and parses the output, stripping ANSI escape codes
+ * from the spinner/progress animation the CLI emits.
+ *
+ * Output format per line: `model-id - Display Name` with an optional
+ * `(default)` suffix on one entry.
  */
 async function fetchCursorModels() {
   const binPaths = [
@@ -208,10 +229,10 @@ async function fetchCursorModels() {
   if (!bin) return null;
 
   return new Promise((resolve) => {
-    const proc = spawn(bin, ['models', '--list-models'], {
+    const proc = spawn(bin, ['models'], {
       stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env, PATH: `${os.homedir()}/.local/bin:/usr/local/bin:${process.env.PATH}` },
-      timeout: 10_000,
+      timeout: 15_000,
     });
 
     let stdout = '';
@@ -220,25 +241,38 @@ async function fetchCursorModels() {
     proc.on('close', (code) => {
       if (code !== 0 || !stdout.trim()) return resolve(null);
 
-      // Parse output: expect one model ID per line
-      const lines = stdout.trim().split('\n').map((l) => l.trim()).filter(Boolean);
+      // Strip ANSI escape codes, then split into lines and filter noise
+      const cleaned = stripAnsi(stdout);
+      const lines = cleaned.split('\n')
+        .map((l) => l.trim())
+        .filter((l) => l && !CURSOR_NOISE_PATTERNS.some((re) => re.test(l)));
+
       if (lines.length === 0) return resolve(null);
 
-      const options = lines.map((id) => ({
-        value: id,
-        label: formatCursorLabel(id),
-      }));
+      let defaultId = null;
+      const options = lines.map((line) => {
+        // Format: "model-id - Display Name  (default)"
+        const match = line.match(/^(\S+)\s+-\s+(.+)$/);
+        if (!match) return null;
 
+        const id = match[1];
+        let label = match[2].trim();
+
+        if (/\(default\)/i.test(label)) {
+          defaultId = id;
+          label = label.replace(/\s*\(default\)/i, '').trim();
+        }
+
+        return { value: id, label };
+      }).filter(Boolean);
+
+      if (options.length === 0) return resolve(null);
+
+      // Stash the CLI's default so discoverModels can use it.
+      options._defaultId = defaultId;
       resolve(options);
     });
   });
-}
-
-/** Produce a human-friendly label from a Cursor model ID. */
-function formatCursorLabel(id) {
-  return id
-    .replace(/-/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 // ─── Public API ─────────────────────────────────────────────────────────────
@@ -270,9 +304,13 @@ export async function discoverModels(provider) {
     }
 
     if (discovered && discovered.length > 0) {
+      // Cursor's fetchCursorModels stashes the CLI-reported default on _defaultId.
+      const cliDefault = discovered._defaultId;
+      delete discovered._defaultId;
+
       cache.set(provider, {
         options: discovered,
-        default: discovered[0].value,
+        default: cliDefault || discovered[0].value,
         discoveredAt: new Date().toISOString(),
       });
       lastDiscovered.set(provider, Date.now());

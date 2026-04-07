@@ -478,31 +478,12 @@ async function postInstallAuth(provider, wss) {
     pushLine('Codex CLI authenticated.');
   }
 
-  // Cursor: run `agent` with the key to register, then verify via `agent status`.
-  // Follows the approach in magneto/apps/ai-studio/image/installer/cli/cursor/install.sh
+  // Cursor: the CLI reads CURSOR_API_KEY from the environment automatically.
+  // Just verify authentication via `agent status`.
   if (provider === 'cursor') {
     const bin = await resolveBin('cursor', 'agent');
-    pushLine('Authenticating Cursor CLI with API key...');
+    pushLine('Verifying Cursor CLI authentication...');
 
-    // Initial invocation registers the key with the agent runtime.
-    const authEnv = { ...process.env, CURSOR_API_KEY: apiKey, PATH: `${os.homedir()}/.local/bin:/usr/local/bin:${process.env.PATH}` };
-    await new Promise((resolve) => {
-      const proc = spawn(bin, ['-p', '-f', '--trust', 'implement user authentication'], {
-        stdio: ['ignore', 'pipe', 'pipe'],
-        env: authEnv,
-      });
-      proc.stdout.on('data', (d) => {
-        for (const line of d.toString().split('\n').filter(Boolean)) pushLine(line);
-      });
-      proc.stderr.on('data', (d) => {
-        for (const line of d.toString().split('\n').filter(Boolean)) pushLine(line);
-      });
-      const timer = setTimeout(() => { proc.kill('SIGTERM'); resolve(); }, 30_000);
-      proc.on('close', () => { clearTimeout(timer); resolve(); });
-      proc.on('error', () => { clearTimeout(timer); resolve(); });
-    });
-
-    // Verify authentication via `agent status`.
     const statusResult = await runCliCommand(bin, ['status'], { wss, provider, timeout: 15_000 });
     if (/not authenticated|invalid|error/i.test(statusResult.output)) {
       pushLine('WARNING: Cursor API key verification failed — agent may not be authenticated.');
