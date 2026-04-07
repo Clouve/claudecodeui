@@ -16,7 +16,7 @@ export default function VersionInfoSection({
   releaseInfo,
 }: VersionInfoSectionProps) {
   const { t } = useTranslation('settings');
-  const releasesUrl = releaseInfo?.htmlUrl || 'https://github.com/Clouve/ai-workspace/releases';
+  const releasesUrl = releaseInfo?.htmlUrl || 'https://github.com/Clouve/ai-workstation/releases';
 
   return (
     <div className="border-t border-border/50 pt-6">

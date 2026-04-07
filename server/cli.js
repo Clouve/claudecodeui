@@ -145,7 +145,7 @@ function showHelp() {
 ╚═══════════════════════════════════════════════════════════════╝
 
 Usage:
-  ai-workspace [command] [options]
+  ai-workstation [command] [options]
   cloudcli [command] [options]
 
 Commands:
@@ -176,10 +176,10 @@ Environment Variables:
   CONTEXT_WINDOW      Set context window size (default: 160000)
 
 Documentation:
-  ${packageJson.homepage || 'https://github.com/Clouve/ai-workspace'}
+  ${packageJson.homepage || 'https://github.com/Clouve/ai-workstation'}
 
 Report Issues:
-  ${packageJson.bugs?.url || 'https://github.com/Clouve/ai-workspace/issues'}
+  ${packageJson.bugs?.url || 'https://github.com/Clouve/ai-workstation/issues'}
 `);
 }
 

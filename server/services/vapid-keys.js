@@ -25,7 +25,7 @@ function getPublicKey() {
 function configureWebPush() {
   const keys = ensureVapidKeys();
   webPush.setVapidDetails(
-    'mailto:noreply@ai-workspace.local',
+    'mailto:noreply@ai-workstation.local',
     keys.publicKey,
     keys.privateKey
   );

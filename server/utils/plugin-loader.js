@@ -3,8 +3,8 @@ import path from 'path';
 import os from 'os';
 import { spawn } from 'child_process';
 
-const PLUGINS_DIR = path.join(os.homedir(), '.ai-workspace', 'plugins');
-const PLUGINS_CONFIG_PATH = path.join(os.homedir(), '.ai-workspace', 'plugins.json');
+const PLUGINS_DIR = path.join(os.homedir(), '.ai-workstation', 'plugins');
+const PLUGINS_CONFIG_PATH = path.join(os.homedir(), '.ai-workstation', 'plugins.json');
 
 const REQUIRED_MANIFEST_FIELDS = ['name', 'displayName', 'entry'];
 

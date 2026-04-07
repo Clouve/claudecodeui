@@ -1,7 +1,7 @@
 {
   "name": "@cloudcli-ai/cloudcli",
   "version": "1.28.0",
-  "description": "A web-based UI for Claude Code CLI",
+  "description": "A web-based UI for coding agents.",
   "type": "module",
   "main": "server/index.js",
   "bin": {
@@ -16,10 +16,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Clouve/ai-workspace.git"
+    "url": "git+https://github.com/Clouve/ai-workstation.git"
   },
   "bugs": {
-    "url": "https://github.com/Clouve/ai-workspace/issues"
+    "url": "https://github.com/Clouve/ai-workstation/issues"
   },
   "scripts": {
     "dev": "concurrently --kill-others \"npm run server\" \"npm run client\"",
@@ -39,7 +39,7 @@
   "keywords": [
     "claude code",
     "claude-code",
-    "ai-workspace",
+    "ai-workstation",
     "codex",
     "gemini",
     "gemini-cli",

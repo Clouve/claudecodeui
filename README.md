@@ -163,7 +163,7 @@ Yes, for self-hosted. AI Workstation UI reads from and writes to the same `~/.cl
 
 - **[Documentation](https://cloudcli.ai/docs)** — installation, configuration, features, and troubleshooting
 - **[Discord](https://discord.gg/buxwujPNRE)** — get help and connect with other users
-- **[GitHub Issues](https://github.com/Clouve/ai-workspace/issues)** — bug reports and feature requests
+- **[GitHub Issues](https://github.com/Clouve/ai-workstation/issues)** — bug reports and feature requests
 - **[Contributing Guide](CONTRIBUTING.md)** — how to contribute to the project
 
 ## License
@@ -172,7 +172,7 @@ GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later) — see [LIC
 
 This project is open source and free to use, modify, and distribute under the AGPL-3.0-or-later license. If you modify this software and run it as a network service, you must make your modified source code available to users of that service.
 
-AI Workstation UI (https://github.com/Clouve/ai-workspace)
+AI Workstation UI (https://github.com/Clouve/ai-workstation)
 
 ## Acknowledgments
 
